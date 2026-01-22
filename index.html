@@ -11,7 +11,7 @@
             --soft-pink: #fff0f3;
             --deep-rose: #ff8fa3;
             --text-main: #4a4a4a;
-            --glass: rgba(255, 255, 255, 0.75);
+            --glass: rgba(255, 255, 255, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -27,10 +27,9 @@
             justify-content: center;
             align-items: center;
             transition: background 1.5s ease;
-            position: fixed; /* Prevents bounce scroll on iOS */
+            position: fixed;
         }
 
-        /* Particles System */
         #canvas-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -38,7 +37,6 @@
             z-index: 1;
         }
 
-        /* Cinematic Overlay */
         #transition-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -51,9 +49,8 @@
             opacity: 0;
             transition: all 0.9s cubic-bezier(0.65, 0, 0.35, 1);
         }
-        .heart-curtain.expand { font-size: 3500px; opacity: 1; }
+        .heart-curtain.expand { font-size: 4000px; opacity: 1; }
 
-        /* Content Styling */
         .card {
             background: var(--glass);
             backdrop-filter: blur(12px);
@@ -61,13 +58,14 @@
             padding: 40px 25px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(255, 143, 163, 0.15);
-            width: 85%;
+            width: 90%;
             max-width: 400px;
             text-align: center;
             z-index: 10;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.8);
             display: none;
             animation: fadeIn 0.8s ease forwards;
+            position: relative;
         }
         .card.active { display: block; }
 
@@ -76,26 +74,34 @@
         h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 15px; color: #333; }
         p { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; min-height: 70px; }
 
-        /* Custom Interactive Elements */
-        .interaction-zone { margin: 15px 0; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .interaction-zone { 
+            margin: 15px 0; 
+            min-height: 140px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            position: relative; /* CRITICAL for the "No" button boundary */
+            width: 100%;
+        }
         
         button {
             background: white;
             border: 2px solid var(--deep-rose);
             color: var(--deep-rose);
-            padding: 12px 30px;
+            padding: 12px 28px;
             border-radius: 50px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
             font-family: 'Inter', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             touch-action: manipulation;
         }
-        button:hover { background: var(--deep-rose); color: white; transform: scale(1.05); }
+        button:hover { background: var(--deep-rose); color: white; }
 
-        /* Specific Interaction Styles */
-        .broken-heart { font-size: 60px; cursor: pointer; filter: grayscale(1); transition: 0.5s; margin-bottom: 10px; }
+        /* Mending Heart Styles */
+        .broken-heart { font-size: 60px; cursor: pointer; filter: grayscale(1); transition: 0.5s; }
         .broken-heart.fixed { filter: grayscale(0); transform: scale(1.2) rotate(360deg); }
         
         .progress-container { width: 100%; height: 10px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 20px; }
@@ -103,21 +109,22 @@
 
         #cloud-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); display: flex; justify-content: center;
+            background: rgba(255,255,255,0.96); display: flex; justify-content: center;
             align-items: center; border-radius: 28px; cursor: crosshair; z-index: 20;
             font-weight: bold; color: var(--deep-rose);
         }
 
+        /* The Impossible No Button */
         #no-btn { 
-            position: relative; 
+            position: absolute; /* Keeps it inside the interaction-zone */
             z-index: 50; 
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap;
         }
 
-        /* Layout for Mobile */
         @media (max-width: 480px) {
             h1 { font-size: 1.7rem; }
-            .card { padding: 30px 20px; width: 90%; }
+            .card { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -137,7 +144,7 @@
         <p id="text-1">Sometimes I act without thinking, and I hate that it hurt you. You're the last person I'd ever want to make sad.</p>
         <div class="interaction-zone" id="zone-1">
             <div class="broken-heart" id="b-heart" onclick="fixHeart()">💔</div>
-            <small id="hint-1">Tap the heart to mend it...</small>
+            <small id="hint-1" style="margin-top:10px">Tap the heart to mend it...</small>
         </div>
     </div>
 
@@ -149,7 +156,7 @@
 
     <div class="card" id="sec-3">
         <h1>Hold for Warmth</h1>
-        <p id="text-3">I wish I could give you a hug right now. Since I'm not there, can you hold this button to send some love to my heart?</p>
+        <p id="text-3">I wish I could hug you right now. Since I'm not there, can you hold this button to send some love to my heart?</p>
         <div class="interaction-zone">
             <button id="hold-btn" onmousedown="startFill()" onmouseup="stopFill()" ontouchstart="startFill()" ontouchend="stopFill()">Hold to Fill Heart 🤍</button>
             <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
@@ -178,7 +185,7 @@
     <div class="card" id="sec-7">
         <h1>Forgive me?</h1>
         <p id="text-7">Can we start a fresh chapter today? I'll make it up to you, I promise.</p>
-        <div class="interaction-zone" style="flex-direction: row; gap: 10px; min-height: 180px; position: relative;">
+        <div class="interaction-zone" id="no-container" style="flex-direction: row; gap: 20px;">
             <button onclick="nextStep(8)">Yes, of course</button>
             <button id="no-btn">No</button>
         </div>
@@ -200,7 +207,6 @@
         let currentStep = 0;
         const bgColors = ['#fff0f3', '#ffeaee', '#ffe3e8', '#ffdce3', '#ffd1dc', '#ffc4d0', '#ffb3c1', '#ff8fa3', '#ff758f', '#ffffff'];
 
-        // Typewriter logic
         function type(id, text) {
             let i = 0;
             const el = document.getElementById(id);
@@ -216,15 +222,13 @@
             t();
         }
 
-        // Transition Logic
         function nextStep(step) {
             const curtain = document.getElementById('curtain');
             curtain.classList.add('expand');
             
             setTimeout(() => {
                 document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-                const nextCard = document.getElementById(`sec-${step}`);
-                nextCard.classList.add('active');
+                document.getElementById(`sec-${step}`).classList.add('active');
                 document.body.style.background = bgColors[step];
                 
                 const p = document.getElementById(`text-${step}`);
@@ -234,19 +238,17 @@
                 curtain.classList.remove('expand');
                 
                 if(step === 8) startConfetti();
-                if(step === 7) initNoButton(); // Initialize special logic for "No" button
+                if(step === 7) initNoButton(); 
             }, 900);
         }
 
-        // Section 1: Fix Heart
         function fixHeart() {
             const h = document.getElementById('b-heart');
             h.innerHTML = '❤';
             h.classList.add('fixed');
-            document.getElementById('hint-1').innerText = 'Heart Mended. Click below.';
+            document.getElementById('hint-1').innerText = 'Heart Mended.';
             
-            const existingBtn = document.getElementById('fix-next');
-            if(!existingBtn) {
+            if(!document.getElementById('fix-next')) {
                 const btn = document.createElement('button');
                 btn.id = 'fix-next';
                 btn.innerText = 'Next';
@@ -256,7 +258,6 @@
             }
         }
 
-        // Section 3: Fill Progress
         let fillInterval;
         let progress = 0;
         function startFill() {
@@ -271,30 +272,38 @@
         }
         function stopFill() { clearInterval(fillInterval); }
 
-        // Section 7: The "Impossible" No Button logic
+        // THE FIXED NO BUTTON LOGIC
         function initNoButton() {
             const noBtn = document.getElementById('no-btn');
+            const container = document.getElementById('no-container');
             
             const moveBtn = (e) => {
-                e.preventDefault(); // Prevents clicking or zooming
-                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40) + 20;
-                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40) + 20;
+                e.preventDefault();
                 
-                noBtn.style.position = 'fixed';
-                noBtn.style.left = x + 'px';
-                noBtn.style.top = y + 'px';
+                // Get the container's dimensions
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                
+                // Get the button's dimensions
+                const btnWidth = noBtn.offsetWidth;
+                const btnHeight = noBtn.offsetHeight;
+                
+                // Calculate random positions strictly WITHIN the container
+                // We leave a 10px padding from the edges
+                const randomX = Math.floor(Math.random() * (containerWidth - btnWidth - 20)) + 10;
+                const randomY = Math.floor(Math.random() * (containerHeight - btnHeight - 20)) + 10;
+                
+                noBtn.style.left = randomX + 'px';
+                noBtn.style.top = randomY + 'px';
             };
 
-            // Triggers on Desktop hover
+            // Triggers for all inputs
             noBtn.addEventListener('mouseover', moveBtn);
-            // Triggers on Mobile touch start (as soon as her finger touches it)
-            noBtn.addEventListener('touchstart', moveBtn);
-            // Triggers on click just in case
+            noBtn.addEventListener('touchstart', moveBtn, {passive: false});
             noBtn.addEventListener('click', moveBtn);
         }
 
-        // Petal/Heart Particles
-        const container = document.getElementById('canvas-container');
+        const canv = document.getElementById('canvas-container');
         function createParticle() {
             const p = document.createElement('div');
             const isPetal = Math.random() > 0.5;
@@ -306,7 +315,7 @@
             p.style.opacity = Math.random();
             p.style.pointerEvents = 'none';
             p.style.transition = `transform ${Math.random() * 5 + 5}s linear, top ${Math.random() * 5 + 5}s linear`;
-            container.appendChild(p);
+            canv.appendChild(p);
 
             setTimeout(() => {
                 p.style.transform = `translateX(${Math.random() * 100 - 50}px) rotate(${Math.random() * 360}deg)`;
@@ -321,9 +330,7 @@
             setInterval(createParticle, 80);
         }
 
-        // Start first typewriter
         window.onload = () => type('text-0', document.getElementById('text-0').innerText);
-
     </script>
 </body>
 </html>
