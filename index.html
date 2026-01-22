@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For Asmara 🤍</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
     
@@ -11,7 +11,7 @@
             --soft-pink: #fff0f3;
             --deep-rose: #ff8fa3;
             --text-main: #4a4a4a;
-            --glass: rgba(255, 255, 255, 0.7);
+            --glass: rgba(255, 255, 255, 0.75);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -21,11 +21,13 @@
             background: var(--soft-pink);
             color: var(--text-main);
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             transition: background 1.5s ease;
+            position: fixed; /* Prevents bounce scroll on iOS */
         }
 
         /* Particles System */
@@ -49,66 +51,73 @@
             opacity: 0;
             transition: all 0.9s cubic-bezier(0.65, 0, 0.35, 1);
         }
-        .heart-curtain.expand { font-size: 3000px; opacity: 1; }
+        .heart-curtain.expand { font-size: 3500px; opacity: 1; }
 
         /* Content Styling */
         .card {
             background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 40px 30px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 40px 25px;
             border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            width: 90%;
-            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(255, 143, 163, 0.15);
+            width: 85%;
+            max-width: 400px;
             text-align: center;
             z-index: 10;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.6);
             display: none;
-            animation: fadeIn 1s ease forwards;
+            animation: fadeIn 0.8s ease forwards;
         }
         .card.active { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 20px; color: #333; }
-        p { font-size: 1.05rem; line-height: 1.6; margin-bottom: 25px; min-height: 80px; }
+        h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 15px; color: #333; }
+        p { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; min-height: 70px; }
 
         /* Custom Interactive Elements */
-        .interaction-zone { margin: 20px 0; min-height: 100px; display: flex; justify-content: center; align-items: center; }
+        .interaction-zone { margin: 15px 0; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
         button {
             background: white;
             border: 2px solid var(--deep-rose);
             color: var(--deep-rose);
-            padding: 12px 35px;
+            padding: 12px 30px;
             border-radius: 50px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
             font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            touch-action: manipulation;
         }
         button:hover { background: var(--deep-rose); color: white; transform: scale(1.05); }
 
         /* Specific Interaction Styles */
-        .broken-heart { font-size: 50px; cursor: pointer; filter: grayscale(1); transition: 0.5s; }
-        .broken-heart.fixed { filter: grayscale(0); transform: scale(1.3); }
+        .broken-heart { font-size: 60px; cursor: pointer; filter: grayscale(1); transition: 0.5s; margin-bottom: 10px; }
+        .broken-heart.fixed { filter: grayscale(0); transform: scale(1.2) rotate(360deg); }
         
-        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-container { width: 100%; height: 10px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 20px; }
         .progress-bar { width: 0%; height: 100%; background: var(--deep-rose); transition: width 0.1s; }
 
         #cloud-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); display: flex; justify-content: center;
-            align-items: center; border-radius: 28px; cursor: crosshair;
+            background: rgba(255,255,255,0.95); display: flex; justify-content: center;
+            align-items: center; border-radius: 28px; cursor: crosshair; z-index: 20;
+            font-weight: bold; color: var(--deep-rose);
         }
 
-        #no-btn { position: absolute; transition: 0.2s linear; }
+        #no-btn { 
+            position: relative; 
+            z-index: 50; 
+            white-space: nowrap;
+        }
 
         /* Layout for Mobile */
         @media (max-width: 480px) {
-            h1 { font-size: 1.8rem; }
-            .card { padding: 30px 20px; }
+            h1 { font-size: 1.7rem; }
+            .card { padding: 30px 20px; width: 90%; }
         }
     </style>
 </head>
@@ -126,23 +135,23 @@
     <div class="card" id="sec-1">
         <h1>I am Sorry.</h1>
         <p id="text-1">Sometimes I act without thinking, and I hate that it hurt you. You're the last person I'd ever want to make sad.</p>
-        <div class="interaction-zone">
+        <div class="interaction-zone" id="zone-1">
             <div class="broken-heart" id="b-heart" onclick="fixHeart()">💔</div>
+            <small id="hint-1">Tap the heart to mend it...</small>
         </div>
-        <small id="hint-1">Tap the heart to mend it...</small>
     </div>
 
     <div class="card" id="sec-2">
         <h1>You're Irreplaceable</h1>
-        <p id="text-2">Every day I spend with you is a gift. I don't take your presence for granted, Asmara.</p>
+        <p id="text-2">Every day I spend with you is a gift. I don't take your presence for granted, Asmara. I want to make this right.</p>
         <button onclick="nextStep(3)">I mean it.</button>
     </div>
 
     <div class="card" id="sec-3">
         <h1>Hold for Warmth</h1>
-        <p id="text-3">I wish I could give you a hug right now. Since I'm not there, can you hold this button to send some love back to me?</p>
-        <div class="interaction-zone" style="flex-direction: column;">
-            <button onmousedown="startFill()" onmouseup="stopFill()" ontouchstart="startFill()" ontouchend="stopFill()">Hold to Fill Heart 🤍</button>
+        <p id="text-3">I wish I could give you a hug right now. Since I'm not there, can you hold this button to send some love to my heart?</p>
+        <div class="interaction-zone">
+            <button id="hold-btn" onmousedown="startFill()" onmouseup="stopFill()" ontouchstart="startFill()" ontouchend="stopFill()">Hold to Fill Heart 🤍</button>
             <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
         </div>
     </div>
@@ -156,22 +165,22 @@
 
     <div class="card" id="sec-5">
         <h1>A Promise</h1>
-        <p id="text-5">I promise to be more patient. To listen with my whole heart. To be the partner you deserve.</p>
+        <p id="text-5">I promise to be more patient. To listen with my whole heart. To be the partner you deserve, Asmara.</p>
         <button onclick="nextStep(6)">Next</button>
     </div>
 
     <div class="card" id="sec-6">
         <h1>Us...</h1>
-        <p id="text-6">I miss our laughs, our late-night talks, and just being near you. It's too quiet without you.</p>
+        <p id="text-6">I miss our laughs and our talks. It's too quiet when we aren't okay. Let's not let another day go to waste.</p>
         <button onclick="nextStep(7)">Almost there...</button>
     </div>
 
     <div class="card" id="sec-7">
         <h1>Forgive me?</h1>
         <p id="text-7">Can we start a fresh chapter today? I'll make it up to you, I promise.</p>
-        <div class="interaction-zone" style="height: 150px;">
+        <div class="interaction-zone" style="flex-direction: row; gap: 10px; min-height: 180px; position: relative;">
             <button onclick="nextStep(8)">Yes, of course</button>
-            <button id="no-btn" onmouseover="moveNo()">No</button>
+            <button id="no-btn">No</button>
         </div>
     </div>
 
@@ -184,7 +193,7 @@
     <div class="card" id="sec-9">
         <h1>For Always.</h1>
         <p id="text-9">No matter what happens, it's always going to be you. I love you.</p>
-        <h2 style="font-family: 'Playfair Display'; font-style: italic;">— Yours, always, Huzaifa 🤍</h2>
+        <h2 style="font-family: 'Playfair Display'; font-style: italic; margin-top: 10px;">— Yours, always, Huzaifa 🤍</h2>
     </div>
 
     <script>
@@ -195,6 +204,7 @@
         function type(id, text) {
             let i = 0;
             const el = document.getElementById(id);
+            if (!el) return;
             el.innerHTML = '';
             function t() {
                 if (i < text.length) {
@@ -212,8 +222,9 @@
             curtain.classList.add('expand');
             
             setTimeout(() => {
-                document.querySelector('.card.active').classList.remove('active');
-                document.getElementById(`sec-${step}`).classList.add('active');
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+                const nextCard = document.getElementById(`sec-${step}`);
+                nextCard.classList.add('active');
                 document.body.style.background = bgColors[step];
                 
                 const p = document.getElementById(`text-${step}`);
@@ -221,7 +232,9 @@
                 
                 currentStep = step;
                 curtain.classList.remove('expand');
+                
                 if(step === 8) startConfetti();
+                if(step === 7) initNoButton(); // Initialize special logic for "No" button
             }, 900);
         }
 
@@ -231,11 +244,16 @@
             h.innerHTML = '❤';
             h.classList.add('fixed');
             document.getElementById('hint-1').innerText = 'Heart Mended. Click below.';
-            const btn = document.createElement('button');
-            btn.innerText = 'Next';
-            btn.style.marginTop = '20px';
-            btn.onclick = () => nextStep(2);
-            h.parentElement.appendChild(btn);
+            
+            const existingBtn = document.getElementById('fix-next');
+            if(!existingBtn) {
+                const btn = document.createElement('button');
+                btn.id = 'fix-next';
+                btn.innerText = 'Next';
+                btn.style.marginTop = '15px';
+                btn.onclick = () => nextStep(2);
+                document.getElementById('zone-1').appendChild(btn);
+            }
         }
 
         // Section 3: Fill Progress
@@ -243,8 +261,8 @@
         let progress = 0;
         function startFill() {
             fillInterval = setInterval(() => {
-                progress += 2;
-                document.getElementById('p-bar').style.width = progress + '%';
+                progress += 1.5;
+                document.getElementById('p-bar').style.width = Math.min(progress, 100) + '%';
                 if(progress >= 100) {
                     clearInterval(fillInterval);
                     nextStep(4);
@@ -253,11 +271,26 @@
         }
         function stopFill() { clearInterval(fillInterval); }
 
-        // Section 7: Move No
-        function moveNo() {
-            const btn = document.getElementById('no-btn');
-            btn.style.left = Math.random() * 70 + '%';
-            btn.style.top = Math.random() * 70 + '%';
+        // Section 7: The "Impossible" No Button logic
+        function initNoButton() {
+            const noBtn = document.getElementById('no-btn');
+            
+            const moveBtn = (e) => {
+                e.preventDefault(); // Prevents clicking or zooming
+                const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40) + 20;
+                const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40) + 20;
+                
+                noBtn.style.position = 'fixed';
+                noBtn.style.left = x + 'px';
+                noBtn.style.top = y + 'px';
+            };
+
+            // Triggers on Desktop hover
+            noBtn.addEventListener('mouseover', moveBtn);
+            // Triggers on Mobile touch start (as soon as her finger touches it)
+            noBtn.addEventListener('touchstart', moveBtn);
+            // Triggers on click just in case
+            noBtn.addEventListener('click', moveBtn);
         }
 
         // Petal/Heart Particles
@@ -271,6 +304,7 @@
             p.style.top = '-20px';
             p.style.fontSize = (Math.random() * 15 + 10) + 'px';
             p.style.opacity = Math.random();
+            p.style.pointerEvents = 'none';
             p.style.transition = `transform ${Math.random() * 5 + 5}s linear, top ${Math.random() * 5 + 5}s linear`;
             container.appendChild(p);
 
@@ -281,10 +315,10 @@
 
             setTimeout(() => p.remove(), 10000);
         }
-        setInterval(createParticle, 300);
+        setInterval(createParticle, 400);
 
         function startConfetti() {
-            setInterval(createParticle, 50);
+            setInterval(createParticle, 80);
         }
 
         // Start first typewriter
