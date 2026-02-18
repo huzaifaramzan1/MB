@@ -3,334 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>For Asmara 🤍</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <title>For My Eman 🤍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <style>
         :root {
-            --soft-pink: #fff0f3;
-            --deep-rose: #ff8fa3;
-            --text-main: #4a4a4a;
-            --glass: rgba(255, 255, 255, 0.8);
+            --primary: #ff8fa3;
+            --accent: #ff4d6d;
+            --text: #4a4a4a;
+            --glass: rgba(255, 255, 255, 0.85);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--soft-pink);
-            color: var(--text-main);
+            background: #fff0f3;
+            color: var(--text);
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: background 1.5s ease;
             position: fixed;
         }
 
-        #canvas-container {
-            position: fixed;
+        /* Floating Background Elements */
+        #bg-container {
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
             pointer-events: none;
-            z-index: 1;
+            overflow: hidden;
         }
-
-        #transition-overlay {
-            position: fixed;
+        
+        /* Final Rain Container */
+        #final-rain-container {
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; pointer-events: none;
+            z-index: 5; /* Above background, below/around card */
+            pointer-events: none;
+            overflow: hidden;
         }
-        .heart-curtain {
-            color: var(--deep-rose);
-            font-size: 0px;
-            opacity: 0;
-            transition: all 0.9s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-        .heart-curtain.expand { font-size: 4000px; opacity: 1; }
 
+        .floater {
+            position: absolute;
+            opacity: 0.6;
+            font-size: 2rem;
+        }
+
+        /* The Card */
         .card {
             background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 40px 25px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px 30px;
             border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(255, 143, 163, 0.15);
+            box-shadow: 0 20px 40px rgba(255, 143, 163, 0.2);
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             text-align: center;
             z-index: 10;
-            border: 1px solid rgba(255,255,255,0.8);
-            display: none;
-            animation: fadeIn 0.8s ease forwards;
-            position: relative;
-        }
-        .card.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 15px; color: #333; }
-        p { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; min-height: 70px; }
-
-        .interaction-zone { 
-            margin: 15px 0; 
-            min-height: 140px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-            position: relative; /* CRITICAL for the "No" button boundary */
-            width: 100%;
+            border: 1px solid rgba(255,255,255,0.9);
+            position: absolute; /* Stacked for GSAP transitions */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
         }
         
+        .card.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
+            color: #2d2d2d;
+            line-height: 1.2;
+        }
+        
+        p { 
+            font-size: 1.05rem; 
+            line-height: 1.6; 
+            margin-bottom: 30px; 
+            color: #555;
+            min-height: 60px;
+        }
+
+        /* Interactive Zones */
+        .interaction-zone {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
         button {
             background: white;
-            border: 2px solid var(--deep-rose);
-            color: var(--deep-rose);
-            padding: 12px 28px;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 14px 32px;
             border-radius: 50px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            touch-action: manipulation;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 143, 163, 0.15);
         }
-        button:hover { background: var(--deep-rose); color: white; }
+        button:hover { 
+            background: var(--primary); 
+            color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 143, 163, 0.3);
+        }
+        button:active { transform: scale(0.95); }
 
-        /* Mending Heart Styles */
-        .broken-heart { font-size: 60px; cursor: pointer; filter: grayscale(1); transition: 0.5s; }
-        .broken-heart.fixed { filter: grayscale(0); transform: scale(1.2) rotate(360deg); }
+        /* Specific Interactive Elements */
+        .pulse-heart { font-size: 60px; cursor: pointer; user-select: none; }
         
-        .progress-container { width: 100%; height: 10px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 20px; }
-        .progress-bar { width: 0%; height: 100%; background: var(--deep-rose); transition: width 0.1s; }
-
-        #cloud-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.96); display: flex; justify-content: center;
-            align-items: center; border-radius: 28px; cursor: crosshair; z-index: 20;
-            font-weight: bold; color: var(--deep-rose);
+        /* Hold Button */
+        #hold-btn {
+            background: linear-gradient(90deg, #ff8fa3 0%, #ff8fa3 0%, white 0%);
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            color: var(--primary);
+            transition: transform 0.1s;
         }
 
-        /* The Impossible No Button */
-        #no-btn { 
-            position: absolute; /* Keeps it inside the interaction-zone */
-            z-index: 50; 
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.95;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
-        @media (max-width: 480px) {
-            h1 { font-size: 1.7rem; }
-            .card { padding: 30px 20px; }
+        /* The Runaway No Button */
+        #no-btn {
+            position: absolute;
+            background: #f0f0f0;
+            border-color: #ccc;
+            color: #888;
+            z-index: 50;
         }
+
+        /* Transition Curtain */
+        #curtain {
+            position: fixed;
+            top: 50%; left: 50%;
+            width: 20px; height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
-    <div id="transition-overlay"><div class="heart-curtain" id="curtain">❤</div></div>
+    <div id="bg-container"></div>
+    <div id="final-rain-container"></div>
+    <div id="curtain"></div>
 
     <div class="card active" id="sec-0">
-        <h1>Hey Asmara...</h1>
-        <p id="text-0">I know things have been heavy lately. I wanted to build a little space just for us to breathe. Ready to enter?</p>
-        <button onclick="nextStep(1)">Open My Heart</button>
+        <h1>My Dearest Eman</h1>
+        <p>I've been thinking a lot lately, and there are some things I just need to say. Are you listening?</p>
+        <button onclick="nextStep(1)">I'm listening 🤍</button>
     </div>
 
     <div class="card" id="sec-1">
-        <h1>I am Sorry.</h1>
-        <p id="text-1">Sometimes I act without thinking, and I hate that it hurt you. You're the last person I'd ever want to make sad.</p>
-        <div class="interaction-zone" id="zone-1">
-            <div class="broken-heart" id="b-heart" onclick="fixHeart()">💔</div>
-            <small id="hint-1" style="margin-top:10px">Tap the heart to mend it...</small>
+        <h1>You Hear Me</h1>
+        <p>Thank you for always listening to me. Even when I ramble, you understand me in a way nobody else does.</p>
+        <div class="interaction-zone">
+            <div class="pulse-heart" id="hear-heart" onclick="animateHeart()">👂</div>
         </div>
+        <button id="btn-1" style="opacity:0; pointer-events:none;" onclick="nextStep(2)">You just get me</button>
     </div>
 
     <div class="card" id="sec-2">
-        <h1>You're Irreplaceable</h1>
-        <p id="text-2">Every day I spend with you is a gift. I don't take your presence for granted, Asmara. I want to make this right.</p>
-        <button onclick="nextStep(3)">I mean it.</button>
+        <h1>Your Silliness</h1>
+        <p>I absolutely love how we can be weird together. Your laugh is my favorite sound in the entire world.</p>
+        <div class="interaction-zone" id="emoji-zone">
+            <span style="font-size:40px; margin:5px">🤪</span>
+            <span style="font-size:40px; margin:5px">😂</span>
+            <span style="font-size:40px; margin:5px">🙈</span>
+        </div>
+        <button onclick="nextStep(3)">It's the best</button>
     </div>
 
     <div class="card" id="sec-3">
-        <h1>Hold for Warmth</h1>
-        <p id="text-3">I wish I could hug you right now. Since I'm not there, can you hold this button to send some love to my heart?</p>
+        <h1>Just... You</h1>
+        <p>Sometimes I catch myself just staring at you. You are effortlessly beautiful, inside and out.</p>
         <div class="interaction-zone">
-            <button id="hold-btn" onmousedown="startFill()" onmouseup="stopFill()" ontouchstart="startFill()" ontouchend="stopFill()">Hold to Fill Heart 🤍</button>
-            <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
+            <button id="hold-btn" onmousedown="startHold()" onmouseup="endHold()" ontouchstart="startHold()" ontouchend="endHold()">Hold to Admire 🌸</button>
         </div>
     </div>
 
-    <div class="card" id="sec-4" style="position: relative;">
-        <h1>Seeing Clearly</h1>
-        <div id="cloud-overlay" onclick="this.style.display='none'">Tap to clear the clouds...</div>
-        <p id="text-4">Even when we argue, I never stop loving you. I want us to always find our way back to the light.</p>
-        <button onclick="nextStep(5)">Continue</button>
+    <div class="card" id="sec-4">
+        <h1>My Safe Place</h1>
+        <p>Being around you feels like coming home. The world is noisy, but you are my peace. (tap the clouds to clear them away!)</p>
+        <div class="interaction-zone" id="cloud-zone" style="height: 150px; overflow: hidden; border-radius: 15px; position: relative; background: #e0f7fa;">
+            <div style="position:absolute; width:100%; text-align:center; top:45%; font-weight:bold; color:#00bcd4;">Clear the doubts...</div>
+            </div>
+        <button id="btn-4" style="opacity:0; pointer-events:none; margin-top:10px;" onclick="nextStep(5)">You are my calm</button>
     </div>
 
     <div class="card" id="sec-5">
-        <h1>A Promise</h1>
-        <p id="text-5">I promise to be more patient. To listen with my whole heart. To be the partner you deserve, Asmara.</p>
-        <button onclick="nextStep(6)">Next</button>
+        <h1>I Adore You</h1>
+        <p>I don't just love you, Eman. I adore the way you think, the way you care, and the way you are.</p>
+        <button onclick="nextStep(6)">Forever</button>
     </div>
 
     <div class="card" id="sec-6">
-        <h1>Us...</h1>
-        <p id="text-6">I miss our laughs and our talks. It's too quiet when we aren't okay. Let's not let another day go to waste.</p>
-        <button onclick="nextStep(7)">Almost there...</button>
+        <h1>A Question...</h1>
+        <p>I don't want a future that doesn't have you in it. I want to build everything with you, side by side.</p>
+        <button onclick="nextStep(7)">Ask me...</button>
     </div>
 
     <div class="card" id="sec-7">
-        <h1>Forgive me?</h1>
-        <p id="text-7">Can we start a fresh chapter today? I'll make it up to you, I promise.</p>
-        <div class="interaction-zone" id="no-container" style="flex-direction: row; gap: 20px;">
-            <button onclick="nextStep(8)">Yes, of course</button>
+        <h1>Future Wife?</h1>
+        <p>Will you stick by my side and be my future wife? (Say yes to forever with Huzaifa)</p>
+        <div class="interaction-zone" id="proposal-zone" style="gap: 15px;">
+            <button onclick="celebrate()">Yes, obviously! 💍</button>
             <button id="no-btn">No</button>
         </div>
     </div>
 
     <div class="card" id="sec-8">
-        <h1>Thank You 🤍</h1>
-        <p id="text-8">You have no idea how much this means to me. I'm the luckiest guy to have you, Asmara.</p>
-        <button onclick="nextStep(9)">Final Note</button>
+        <h1>I Knew It! 🤍</h1>
+        <p>You have made me the happiest man alive. I promise to always cherish you, Eman.</p>
+        <button onclick="nextStep(9)">One last thing</button>
     </div>
 
     <div class="card" id="sec-9">
-        <h1>For Always.</h1>
-        <p id="text-9">No matter what happens, it's always going to be you. I love you.</p>
-        <h2 style="font-family: 'Playfair Display'; font-style: italic; margin-top: 10px;">— Yours, always, Huzaifa 🤍</h2>
+        <h1 id="final-h1">For Always.</h1>
+        <p id="final-p">No matter what life throws at us, it's you and me. I love you more than words can say.</p>
+        <h2 id="final-sig" style="font-family: 'Playfair Display'; font-style: italic; margin-top: 20px; font-size: 1.5rem; color: var(--accent);">— Yours, Huzaifa 🤍</h2>
     </div>
 
     <script>
+        // --- Configuration ---
+        const bgColors = [
+            '#fff0f3', // Intro
+            '#ffe5ec', // Listening
+            '#fff9c4', // Silliness (Yellow tint)
+            '#ffe3e3', // Beauty
+            '#e0f7fa', // Peace (Blue tint)
+            '#f3e5f5', // Adore (Purple tint)
+            '#ffebee', // Future
+            '#ffcdd2', // Proposal
+            '#fff0f3', // Success
+            '#ffffff'  // Final
+        ];
+
         let currentStep = 0;
-        const bgColors = ['#fff0f3', '#ffeaee', '#ffe3e8', '#ffdce3', '#ffd1dc', '#ffc4d0', '#ffb3c1', '#ff8fa3', '#ff758f', '#ffffff'];
 
-        function type(id, text) {
-            let i = 0;
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.innerHTML = '';
-            function t() {
-                if (i < text.length) {
-                    el.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(t, 35);
-                }
+        // --- Init GSAP Background ---
+        function initBackground() {
+            const container = document.getElementById('bg-container');
+            const icons = ['❤', '🌸', '✨', '🤍', '☁️'];
+            
+            for(let i=0; i<15; i++) {
+                const el = document.createElement('div');
+                el.classList.add('floater');
+                el.innerText = icons[Math.floor(Math.random() * icons.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = Math.random() * 100 + '%';
+                container.appendChild(el);
+
+                gsap.to(el, {
+                    y: Math.random() * 100 - 50,
+                    x: Math.random() * 100 - 50,
+                    rotation: Math.random() * 360,
+                    duration: 10 + Math.random() * 20,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
             }
-            t();
         }
+        initBackground();
 
-        function nextStep(step) {
+        // --- Navigation Logic ---
+        function nextStep(target) {
+            const currentCard = document.getElementById(`sec-${currentStep}`);
+            const nextCard = document.getElementById(`sec-${target}`);
             const curtain = document.getElementById('curtain');
-            curtain.classList.add('expand');
             
-            setTimeout(() => {
-                document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-                document.getElementById(`sec-${step}`).classList.add('active');
-                document.body.style.background = bgColors[step];
+            // Timeline for transition
+            const tl = gsap.timeline();
+
+            // 1. Zoom out text
+            tl.to(currentCard, {
+                scale: 0.9,
+                opacity: 0,
+                duration: 0.4,
+                ease: "back.in(1.7)"
+            })
+            // 2. Expand Curtain
+            .to(curtain, {
+                scale: 150, // Covers screen
+                duration: 0.8,
+                ease: "circ.inOut",
+                onStart: () => {
+                    document.body.style.backgroundColor = bgColors[target];
+                }
+            })
+            // 3. Switch Card Visibility (behind curtain)
+            .call(() => {
+                currentCard.classList.remove('active');
+                nextCard.classList.add('active');
+                // Reset next card state for animation
+                gsap.set(nextCard, { scale: 0.8, opacity: 0, y: 50 });
                 
-                const p = document.getElementById(`text-${step}`);
-                if(p) type(`text-${step}`, p.innerText);
-                
-                currentStep = step;
-                curtain.classList.remove('expand');
-                
-                if(step === 8) startConfetti();
-                if(step === 7) initNoButton(); 
-            }, 900);
+                // Special Inits
+                if(target === 2) initSilly();
+                if(target === 4) initClouds();
+                if(target === 7) initRunawayBtn();
+                if(target === 9) initFinalSpectacle(); // THE BOSS LEVEL
+            })
+            // 4. Retract Curtain
+            .to(curtain, {
+                scale: 0,
+                duration: 0.6,
+                ease: "power2.out"
+            })
+            // 5. Animate New Card In
+            .to(nextCard, {
+                scale: 1,
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: "back.out(1.5)"
+            });
+
+            currentStep = target;
         }
 
-        function fixHeart() {
-            const h = document.getElementById('b-heart');
-            h.innerHTML = '❤';
-            h.classList.add('fixed');
-            document.getElementById('hint-1').innerText = 'Heart Mended.';
+        // --- Step 1: Listening Interaction ---
+        function animateHeart() {
+            const h = document.getElementById('hear-heart');
+            gsap.to(h, { scale: 1.5, rotate: 360, duration: 0.5, ease: "back.out(1.7)" });
+            h.innerText = '💖';
             
-            if(!document.getElementById('fix-next')) {
-                const btn = document.createElement('button');
-                btn.id = 'fix-next';
-                btn.innerText = 'Next';
-                btn.style.marginTop = '15px';
-                btn.onclick = () => nextStep(2);
-                document.getElementById('zone-1').appendChild(btn);
+            const btn = document.getElementById('btn-1');
+            gsap.to(btn, { opacity: 1, pointerEvents: 'all', y: -10, duration: 0.5, delay: 0.2 });
+        }
+
+        // --- Step 2: Silliness Interaction ---
+        function initSilly() {
+            gsap.utils.toArray("#emoji-zone span").forEach(emoji => {
+                gsap.to(emoji, {
+                    y: -20,
+                    rotation: 20,
+                    duration: 0.5,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: "power1.inOut",
+                    delay: Math.random() * 0.5
+                });
+            });
+        }
+
+        // --- Step 3: Hold Interaction ---
+        let holdTimer;
+        const holdBtn = document.getElementById('hold-btn');
+        
+        function startHold() {
+            gsap.to(holdBtn, { scale: 0.95, duration: 0.1 });
+            
+            let progress = 0;
+            holdTimer = setInterval(() => {
+                progress += 2;
+                // Animate gradient background position to simulate filling
+                holdBtn.style.backgroundPosition = `${100 - progress}% 0`;
+                
+                if(progress >= 100) {
+                    clearInterval(holdTimer);
+                    holdBtn.innerText = "Beautiful ✨";
+                    gsap.to(holdBtn, { scale: 1.1, duration: 0.3, ease: "elastic.out" });
+                    setTimeout(() => nextStep(4), 800);
+                }
+            }, 20);
+        }
+        
+        function endHold() {
+            clearInterval(holdTimer);
+            gsap.to(holdBtn, { scale: 1, duration: 0.2 });
+            holdBtn.style.backgroundPosition = `100% 0`; // Reset
+        }
+
+        // --- Step 4: Cloud Interaction ---
+        function initClouds() {
+            const zone = document.getElementById('cloud-zone');
+            zone.innerHTML = '<div style="position:absolute; width:100%; text-align:center; top:45%; font-weight:bold; color:#00bcd4;">I see you clearly now 🤍</div>';
+            
+            for(let i=0; i<8; i++) {
+                const cloud = document.createElement('div');
+                cloud.classList.add('cloud');
+                const size = 60 + Math.random() * 60;
+                cloud.style.width = size + 'px';
+                cloud.style.height = size * 0.6 + 'px';
+                cloud.style.left = Math.random() * 80 + '%';
+                cloud.style.top = Math.random() * 80 + '%';
+                
+                // Click to dissipate
+                cloud.onclick = function() {
+                    gsap.to(this, { scale: 2, opacity: 0, duration: 0.5, onComplete: () => this.remove() });
+                    checkClouds();
+                };
+                
+                zone.appendChild(cloud);
             }
         }
-
-        let fillInterval;
-        let progress = 0;
-        function startFill() {
-            fillInterval = setInterval(() => {
-                progress += 1.5;
-                document.getElementById('p-bar').style.width = Math.min(progress, 100) + '%';
-                if(progress >= 100) {
-                    clearInterval(fillInterval);
-                    nextStep(4);
+        
+        function checkClouds() {
+            setTimeout(() => {
+                if(document.querySelectorAll('.cloud').length === 0) {
+                    const btn = document.getElementById('btn-4');
+                    gsap.to(btn, { opacity: 1, pointerEvents: 'all', y: 0, duration: 0.5 });
                 }
-            }, 30);
+            }, 600);
         }
-        function stopFill() { clearInterval(fillInterval); }
 
-        // THE FIXED NO BUTTON LOGIC
-        function initNoButton() {
+        // --- Step 7: Runaway No Button ---
+        function initRunawayBtn() {
             const noBtn = document.getElementById('no-btn');
-            const container = document.getElementById('no-container');
+            const zone = document.getElementById('proposal-zone');
             
-            const moveBtn = (e) => {
-                e.preventDefault();
+            const moveBtn = () => {
+                const rect = zone.getBoundingClientRect();
+                const btnRect = noBtn.getBoundingClientRect();
                 
-                // Get the container's dimensions
-                const containerWidth = container.offsetWidth;
-                const containerHeight = container.offsetHeight;
+                const xMax = zone.offsetWidth - btnRect.width;
+                const yMax = zone.offsetHeight - btnRect.height;
                 
-                // Get the button's dimensions
-                const btnWidth = noBtn.offsetWidth;
-                const btnHeight = noBtn.offsetHeight;
+                const randomX = Math.random() * xMax;
+                const randomY = Math.random() * yMax;
                 
-                // Calculate random positions strictly WITHIN the container
-                // We leave a 10px padding from the edges
-                const randomX = Math.floor(Math.random() * (containerWidth - btnWidth - 20)) + 10;
-                const randomY = Math.floor(Math.random() * (containerHeight - btnHeight - 20)) + 10;
-                
-                noBtn.style.left = randomX + 'px';
-                noBtn.style.top = randomY + 'px';
+                gsap.to(noBtn, {
+                    x: randomX - (zone.offsetWidth/2) + (btnRect.width/2),
+                    y: randomY - (zone.offsetHeight/2),
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
             };
 
-            // Triggers for all inputs
             noBtn.addEventListener('mouseover', moveBtn);
-            noBtn.addEventListener('touchstart', moveBtn, {passive: false});
+            noBtn.addEventListener('touchstart', moveBtn);
             noBtn.addEventListener('click', moveBtn);
         }
 
-        const canv = document.getElementById('canvas-container');
-        function createParticle() {
-            const p = document.createElement('div');
-            const isPetal = Math.random() > 0.5;
-            p.innerHTML = isPetal ? '🌸' : '❤';
-            p.style.position = 'fixed';
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.top = '-20px';
-            p.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            p.style.opacity = Math.random();
-            p.style.pointerEvents = 'none';
-            p.style.transition = `transform ${Math.random() * 5 + 5}s linear, top ${Math.random() * 5 + 5}s linear`;
-            canv.appendChild(p);
-
-            setTimeout(() => {
-                p.style.transform = `translateX(${Math.random() * 100 - 50}px) rotate(${Math.random() * 360}deg)`;
-                p.style.top = '110vh';
-            }, 10);
-
-            setTimeout(() => p.remove(), 10000);
+        function celebrate() {
+            nextStep(8);
+            
+            // Confetti explosion
+            for(let i=0; i<100; i++) {
+                const p = document.createElement('div');
+                p.innerText = ['💍', '🤍', '🎉', '🌸'][Math.floor(Math.random()*4)];
+                p.style.position = 'fixed';
+                p.style.left = '50%';
+                p.style.top = '50%';
+                p.style.fontSize = Math.random() * 20 + 10 + 'px';
+                p.style.pointerEvents = 'none';
+                document.body.appendChild(p);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 100 + Math.random() * 400;
+                
+                gsap.to(p, {
+                    x: Math.cos(angle) * velocity,
+                    y: Math.sin(angle) * velocity,
+                    opacity: 0,
+                    duration: 1 + Math.random(),
+                    ease: "power2.out",
+                    onComplete: () => p.remove()
+                });
+            }
         }
-        setInterval(createParticle, 400);
 
-        function startConfetti() {
-            setInterval(createParticle, 80);
+        // --- THE GRAND FINALE (BOSS ANIMATION) ---
+        function initFinalSpectacle() {
+            // 1. Text Animation
+            const tl = gsap.timeline();
+            tl.from("#final-h1", { opacity: 0, y: 20, duration: 1, delay: 0.5 })
+              .from("#final-p", { opacity: 0, y: 20, duration: 1 }, "-=0.5")
+              .from("#final-sig", { opacity: 0, scale: 0.8, duration: 1, ease: "elastic.out(1, 0.5)" });
+
+            // 2. Floating Card
+            gsap.to("#sec-9", {
+                y: -15,
+                duration: 2,
+                yoyo: true,
+                repeat: -1,
+                ease: "sine.inOut"
+            });
+
+            // 3. Infinite Rain of Love
+            const container = document.getElementById('final-rain-container');
+            const items = ['🌸', '🌹', '🌺', '🤍', '❤', '✨'];
+            
+            // Create a dense rain interval
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.innerText = items[Math.floor(Math.random() * items.length)];
+                el.style.position = 'absolute';
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = '-50px';
+                el.style.fontSize = Math.random() * 20 + 15 + 'px';
+                el.style.opacity = Math.random() * 0.5 + 0.5;
+                el.style.pointerEvents = 'none';
+                container.appendChild(el);
+
+                // Fall animation
+                gsap.to(el, {
+                    y: '110vh', // Fall to bottom
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 3 + 2, // Random speed (2-5s)
+                    ease: "none",
+                    onComplete: () => el.remove()
+                });
+
+                // Sway animation
+                gsap.to(el, {
+                    x: '+=random(-50, 50)', // Sway left/right
+                    duration: Math.random() * 1 + 1,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: "sine.inOut"
+                });
+
+            }, 50); // New particle every 50ms for dense rain
         }
 
-        window.onload = () => type('text-0', document.getElementById('text-0').innerText);
     </script>
 </body>
 </html>
