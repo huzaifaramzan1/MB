@@ -12,7 +12,7 @@
             --primary: #ff8fa3;
             --accent: #ff4d6d;
             --text: #4a4a4a;
-            --glass: rgba(255, 255, 255, 0.90); /* Slightly more opaque for better text contrast */
+            --glass: rgba(255, 255, 255, 0.90);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -50,7 +50,6 @@
 
         .floater {
             position: absolute;
-            /* Increased default opacity for better visibility */
             opacity: 0.8; 
             font-size: 2rem;
             filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
@@ -121,7 +120,7 @@
             transition: all 0.3s;
             box-shadow: 0 5px 15px rgba(255, 143, 163, 0.15);
             position: relative;
-            z-index: 2; /* Ensure clicks register */
+            z-index: 2;
         }
         button:hover { 
             background: var(--primary); 
@@ -134,13 +133,34 @@
         /* Specific Interactive Elements */
         .pulse-heart { font-size: 60px; cursor: pointer; user-select: none; }
         
-        /* Hold Button */
+        /* Hold Button (Fool-Proofed) */
         #hold-btn {
             background: linear-gradient(90deg, #ff8fa3 0%, #ff8fa3 0%, white 0%);
             background-size: 200% 100%;
             background-position: 100% 0;
             color: var(--primary);
             transition: transform 0.1s;
+            /* Prevent text selection and context menu popping up on mobile */
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* Progress Bar below hold button */
+        #hold-progress-container {
+            width: 80%;
+            height: 8px;
+            background: #ffe3e8;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: none; /* Shown via JS */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #hold-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
         }
 
         /* Clouds */
@@ -155,9 +175,8 @@
 
         /* The Runaway No Button */
         #no-btn {
-            /* Keep it absolute but initially positioned via JS or CSS to look normal */
             position: absolute; 
-            background: #f0f0f0; /* Grey */
+            background: #f0f0f0;
             border-color: #d1d1d1;
             color: #888;
             z-index: 50;
@@ -166,12 +185,11 @@
         #no-btn:hover {
             background: #e0e0e0;
             color: #666;
-            /* Do not scale/transform on hover here, GSAP handles the move */
         }
 
-        /* Special Proposal Zone to allow movement */
+        /* Special Proposal Zone */
         #proposal-zone {
-            height: 200px; /* Taller to allow running room */
+            height: 200px;
             position: relative;
         }
 
@@ -224,8 +242,11 @@
     <div class="card" id="sec-3">
         <h1>Just... You</h1>
         <p>Sometimes I catch myself just staring at you. You are effortlessly beautiful, inside and out.</p>
-        <div class="interaction-zone">
-            <button id="hold-btn" onmousedown="startHold()" onmouseup="endHold()" ontouchstart="startHold()" ontouchend="endHold()">Hold to Admire 🌸</button>
+        <div class="interaction-zone" style="flex-direction: column;">
+            <button id="hold-btn">Hold to Admire 🌸</button>
+            <div id="hold-progress-container">
+                <div id="hold-progress-bar"></div>
+            </div>
         </div>
     </div>
 
@@ -255,7 +276,6 @@
         <p>Will you stick by my side and be my future wife? (Say yes to forever with Agha)</p>
         <div class="interaction-zone" id="proposal-zone">
             <button id="yes-btn" onclick="celebrate()" style="margin-bottom: 20px;">Yes, obviously! 💍</button>
-            
             <button id="no-btn">No</button>
         </div>
     </div>
@@ -268,7 +288,7 @@
 
     <div class="card" id="sec-9">
         <h1 id="final-h1">For Always.</h1>
-        <p id="final-p">No matter what life throws at us, it's you and me. I love you more than words can say. <br> I'm waiting for the day you'll say "I love you" to me 🤍(I do personally think It's the best moment to say it)</p>
+        <p id="final-p">No matter what life throws at us, it's you and me. I love you more than words can say. <br> I'm waiting for the day you'll say "I love you" to me 🤍<br><span style="font-size: 0.8rem">(I do personally think It's the best moment to say it)</span></p>
         <h2 id="final-sig" style="font-family: 'Playfair Display'; font-style: italic; margin-top: 20px; font-size: 1.5rem; color: var(--accent);">— Yours, Agha 🤍</h2>
     </div>
 
@@ -279,12 +299,9 @@
         ];
         let currentStep = 0;
 
-        // --- 1. Background Animation (FASTER) ---
         function initBackground() {
             const container = document.getElementById('bg-container');
             const icons = ['❤', '🌸', '✨', '🤍', '☁️', '🌹'];
-            
-            // Create more elements for better density
             for(let i=0; i<20; i++) {
                 const el = document.createElement('div');
                 el.classList.add('floater');
@@ -294,27 +311,20 @@
                 container.appendChild(el);
 
                 gsap.to(el, {
-                    y: Math.random() * 200 - 100, // Move further
-                    x: Math.random() * 200 - 100,
-                    rotation: Math.random() * 360,
-                    // FASTER DURATION: 2s to 8s (was 10-30s)
-                    duration: 2 + Math.random() * 6, 
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
+                    y: Math.random() * 200 - 100, x: Math.random() * 200 - 100,
+                    rotation: Math.random() * 360, duration: 2 + Math.random() * 6, 
+                    repeat: -1, yoyo: true, ease: "sine.inOut"
                 });
             }
         }
         initBackground();
 
-        // --- Navigation Logic ---
         function nextStep(target) {
             const currentCard = document.getElementById(`sec-${currentStep}`);
             const nextCard = document.getElementById(`sec-${target}`);
             const curtain = document.getElementById('curtain');
             
             const tl = gsap.timeline();
-
             tl.to(currentCard, { scale: 0.9, opacity: 0, duration: 0.4, ease: "back.in(1.7)" })
             .to(curtain, {
                 scale: 150, duration: 0.8, ease: "circ.inOut",
@@ -327,8 +337,8 @@
                 
                 if(target === 2) initSilly();
                 if(target === 4) initClouds();
-                if(target === 7) initRunawayBtn(); // No button logic
-                if(target === 9) initFinalSpectacle(); // Boss animation
+                if(target === 7) initRunawayBtn(); 
+                if(target === 9) initFinalSpectacle(); 
             })
             .to(curtain, { scale: 0, duration: 0.6, ease: "power2.out" })
             .to(nextCard, { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" });
@@ -352,27 +362,73 @@
             });
         }
 
-        let holdTimer;
+        // --- NEW FOOL-PROOF HOLD BUTTON LOGIC ---
+        let holdTimer = null;
+        let isHolding = false;
+        let holdProgress = 0;
+        
         const holdBtn = document.getElementById('hold-btn');
-        function startHold() {
+        const holdContainer = document.getElementById('hold-progress-container');
+        const holdBar = document.getElementById('hold-progress-bar');
+
+        function startHold(e) {
+            // Prevent simulated mouse events on touch devices
+            if (e.type === 'touchstart') e.preventDefault();
+            
+            if (isHolding) return;
+            isHolding = true;
+            
+            holdContainer.style.display = 'block';
             gsap.to(holdBtn, { scale: 0.95, duration: 0.1 });
-            let progress = 0;
+            
+            clearInterval(holdTimer);
+            
             holdTimer = setInterval(() => {
-                progress += 2;
-                holdBtn.style.backgroundPosition = `${100 - progress}% 0`;
-                if(progress >= 100) {
+                holdProgress += 2;
+                // Update bar and background gradient
+                holdBar.style.width = holdProgress + '%';
+                holdBtn.style.backgroundPosition = `${100 - holdProgress}% 0`;
+                
+                if(holdProgress >= 100) {
                     clearInterval(holdTimer);
+                    isHolding = false;
                     holdBtn.innerText = "Beautiful ✨";
                     gsap.to(holdBtn, { scale: 1.1, duration: 0.3, ease: "elastic.out" });
+                    
+                    // Remove listeners so it can't be triggered again
+                    holdBtn.removeEventListener('mousedown', startHold);
+                    holdBtn.removeEventListener('touchstart', startHold);
+                    
                     setTimeout(() => nextStep(4), 800);
                 }
             }, 20);
         }
-        function endHold() {
+
+        function endHold(e) {
+            if (!isHolding) return;
+            isHolding = false;
             clearInterval(holdTimer);
+            
+            // Reset visuals
             gsap.to(holdBtn, { scale: 1, duration: 0.2 });
+            holdProgress = 0;
+            holdBar.style.width = '0%';
             holdBtn.style.backgroundPosition = `100% 0`;
         }
+
+        // Attach listeners (Mouse & Touch)
+        holdBtn.addEventListener('mousedown', startHold);
+        holdBtn.addEventListener('touchstart', startHold, { passive: false });
+        
+        // Stop triggers (covers lifting finger, dragging finger off, etc.)
+        holdBtn.addEventListener('mouseup', endHold);
+        holdBtn.addEventListener('mouseleave', endHold);
+        holdBtn.addEventListener('touchend', endHold);
+        holdBtn.addEventListener('touchcancel', endHold);
+        
+        // Block context menu (the popup that asks to copy text on mobile)
+        holdBtn.addEventListener('contextmenu', e => e.preventDefault());
+        // ----------------------------------------
 
         function initClouds() {
             const zone = document.getElementById('cloud-zone');
@@ -392,6 +448,7 @@
                 zone.appendChild(cloud);
             }
         }
+
         function checkClouds() {
             setTimeout(() => {
                 if(document.querySelectorAll('.cloud').length === 0) {
@@ -400,43 +457,32 @@
             }, 600);
         }
 
-        // --- 2. UPDATED RUNAWAY BUTTON LOGIC ---
         function initRunawayBtn() {
             const noBtn = document.getElementById('no-btn');
             const yesBtn = document.getElementById('yes-btn');
             const zone = document.getElementById('proposal-zone');
             
-            // Set initial position of No button (next to Yes button)
-            // We do this via JS to ensure it aligns perfectly before running away
-            const yesRect = yesBtn.getBoundingClientRect();
-            const zoneRect = zone.getBoundingClientRect();
-            
-            // Center everything initially
             gsap.set(noBtn, { left: '50%', x: '-50%', top: yesBtn.offsetHeight + 20 });
 
             const moveBtn = (e) => {
-                e.preventDefault(); // Prevent click
+                e.preventDefault(); 
                 
-                // Get dimensions
                 const zoneWidth = zone.offsetWidth;
                 const zoneHeight = zone.offsetHeight;
                 const btnWidth = noBtn.offsetWidth;
                 const btnHeight = noBtn.offsetHeight;
                 
-                // Get Yes button area relative to the zone
                 const yesLeft = yesBtn.offsetLeft;
                 const yesTop = yesBtn.offsetTop;
                 const yesRight = yesLeft + yesBtn.offsetWidth;
                 const yesBottom = yesTop + yesBtn.offsetHeight;
 
-                // Try to find a safe spot that doesn't overlap Yes
                 let newX, newY, safe = false;
                 
                 for(let i=0; i<20; i++) {
                     newX = Math.random() * (zoneWidth - btnWidth);
                     newY = Math.random() * (zoneHeight - btnHeight);
                     
-                    // Buffer of 20px
                     if( !(newX < yesRight + 20 && newX + btnWidth > yesLeft - 20 &&
                           newY < yesBottom + 20 && newY + btnHeight > yesTop - 20) ) {
                         safe = true;
@@ -444,17 +490,12 @@
                     }
                 }
                 
-                // Fallback: if no safe spot found (rare), just corners
                 if(!safe) { newX = 0; newY = 0; }
 
-                // ANIMATE: Move + SPIN
                 gsap.to(noBtn, {
-                    left: newX,
-                    top: newY,
-                    x: 0, // Reset transform centering
-                    rotation: Math.random() * 360 - 180, // SPIN ACTION
-                    duration: 0.4,
-                    ease: "power2.out"
+                    left: newX, top: newY, x: 0, 
+                    rotation: Math.random() * 360 - 180, 
+                    duration: 0.4, ease: "power2.out"
                 });
             };
 
