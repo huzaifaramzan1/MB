@@ -3,556 +3,1113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>For My Roo 🤍</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <title>For My Fatima 🤍</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <style>
         :root {
             --primary: #ff8fa3;
             --accent: #ff4d6d;
-            --text: #4a4a4a;
-            --glass: rgba(255, 255, 255, 0.90);
+            --deep: #c9184a;
+            --soft: #fff0f3;
+            --text: #3a2a2a;
+            --glass: rgba(255,255,255,0.92);
+            --gold: #ffb347;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: #fff0f3;
             color: var(--text);
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; width: 100vw;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             position: fixed;
         }
 
-        /* Floating Background Elements */
-        #bg-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
+        /* ── Progress Trail ── */
+        #progress-trail {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: rgba(255,143,163,0.2);
+            z-index: 200;
         }
-        
-        /* Final Rain Container */
-        #final-rain-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 5;
-            pointer-events: none;
-            overflow: hidden;
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8fa3, #ff4d6d, #ffb347);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+            border-radius: 0 2px 2px 0;
         }
+
+        /* ── Step Counter ── */
+        #step-counter {
+            position: fixed;
+            top: 14px; right: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            z-index: 200;
+            opacity: 0.8;
+        }
+
+        /* ── Score / Streak ── */
+        #score-badge {
+            position: fixed;
+            top: 14px; left: 16px;
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.9);
+            border: 1.5px solid var(--primary);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            z-index: 200;
+            backdrop-filter: blur(8px);
+            transform: scale(0);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #score-badge.show { transform: scale(1); }
+        #score-num { transition: all 0.3s; }
+
+        /* ── Background ── */
+        #bg-container, #final-rain-container, #star-container {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            z-index:0; pointer-events:none; overflow:hidden;
+        }
+        #final-rain-container { z-index:5; }
+        #star-container { z-index:1; }
 
         .floater {
-            position: absolute;
-            opacity: 0.8; 
-            font-size: 2rem;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+            position:absolute; opacity:0.7;
+            font-size:1.6rem;
+            filter: drop-shadow(0 2px 4px rgba(255,77,109,0.2));
         }
 
-        /* The Card */
+        /* ── Stars ── */
+        .star {
+            position:absolute;
+            border-radius:50%;
+            background: white;
+            pointer-events:none;
+        }
+
+        /* ── Card ── */
         .card {
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 40px 30px;
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(255, 143, 163, 0.3);
-            width: 90%;
-            max-width: 420px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 36px 28px 32px;
+            border-radius: 28px;
+            box-shadow: 0 8px 40px rgba(255,77,109,0.18), 0 2px 8px rgba(255,143,163,0.12);
+            width: 92%;
+            max-width: 400px;
             text-align: center;
             z-index: 10;
-            border: 1px solid rgba(255,255,255,0.8);
+            border: 1.5px solid rgba(255,255,255,0.9);
             position: absolute;
-            opacity: 0;
-            visibility: hidden;
+            opacity: 0; visibility: hidden;
             transform: translateY(20px);
+            transition: box-shadow 0.3s;
         }
-        
-        .card.active {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0);
+        .card.active { visibility:visible; opacity:1; transform:translateY(0); }
+
+        /* Card shimmer on load */
+        .card::before {
+            content:'';
+            position:absolute; top:0; left:-100%;
+            width:60%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            border-radius: 28px;
+            pointer-events:none;
+        }
+        .card.shimmer::before { animation: shimmer 0.8s ease forwards; }
+        @keyframes shimmer { to { left:160%; } }
+
+        /* ── Card badge ── */
+        .card-badge {
+            display:inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
         }
 
-        h1 { 
-            font-family: 'Playfair Display', serif; 
-            font-size: 2.2rem; 
-            margin-bottom: 15px; 
-            color: #2d2d2d;
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #2a1a1a;
             line-height: 1.2;
         }
-        
-        p { 
-            font-size: 1.05rem; 
-            line-height: 1.6; 
-            margin-bottom: 30px; 
-            color: #555;
-            min-height: 60px;
+        p {
+            font-size: 1rem;
+            line-height: 1.65;
+            margin-bottom: 24px;
+            color: #5a4040;
+            min-height: 52px;
         }
 
-        /* Interactive Zones */
+        /* ── Interaction Zone ── */
         .interaction-zone {
             height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            margin-bottom: 20px;
+            display:flex; justify-content:center; align-items:center;
+            position:relative; margin-bottom: 18px;
+            flex-direction: column; gap: 10px;
         }
 
-        /* Buttons */
+        /* ── Buttons ── */
         button {
             background: white;
             border: 2px solid var(--primary);
-            color: var(--primary);
+            color: var(--accent);
             padding: 14px 32px;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 1rem;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 143, 163, 0.15);
-            position: relative;
-            z-index: 2;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 4px 16px rgba(255,143,163,0.18);
+            position:relative; z-index:2;
+            -webkit-touch-callout:none;
+            user-select:none;
         }
-        button:hover { 
-            background: var(--primary); 
-            color: white; 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 143, 163, 0.3);
+        button:hover {
+            background: var(--accent); color: white;
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(255,77,109,0.3);
         }
-        button:active { transform: scale(0.95); }
+        button:active { transform: scale(0.95) !important; }
 
-        /* Specific Interactive Elements */
-        .pulse-heart { font-size: 60px; cursor: pointer; user-select: none; }
-        
-        /* Hold Button (Fool-Proofed) */
-        #hold-btn {
-            background: linear-gradient(90deg, #ff8fa3 0%, #ff8fa3 0%, white 0%);
-            background-size: 200% 100%;
-            background-position: 100% 0;
-            color: var(--primary);
-            transition: transform 0.1s;
-            /* Prevent text selection and context menu popping up on mobile */
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+        /* ── Ripple on tap ── */
+        .ripple-btn {
+            overflow:hidden;
+        }
+        .ripple-effect {
+            position:absolute; border-radius:50%;
+            background: rgba(255,77,109,0.25);
+            transform: scale(0);
+            animation: ripple-anim 0.5s ease-out;
+            pointer-events:none;
+        }
+        @keyframes ripple-anim {
+            to { transform:scale(4); opacity:0; }
         }
 
-        /* Progress Bar below hold button */
-        #hold-progress-container {
-            width: 80%;
-            height: 8px;
+        /* ── Floating +1 points ── */
+        .point-pop {
+            position:fixed;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            pointer-events:none;
+            z-index: 500;
+            text-shadow: 0 2px 8px rgba(255,77,109,0.4);
+        }
+
+        /* ── Sec 0: Typewriter ── */
+        #typewriter-text { display:inline; }
+        #typewriter-cursor {
+            display:inline-block;
+            width:2px; height:1em;
+            background:var(--accent);
+            vertical-align:middle;
+            animation: blink 0.8s step-end infinite;
+            margin-left:2px;
+        }
+        @keyframes blink { 50%{opacity:0} }
+
+        /* ── Sec 1: Heart meter ── */
+        #heart-meter {
+            width:80%;
+            height: 10px;
             background: #ffe3e8;
             border-radius: 10px;
-            margin-top: 20px;
-            overflow: hidden;
-            display: none; /* Shown via JS */
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            overflow:hidden;
+            margin-top:8px;
         }
-        #hold-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--accent);
+        #heart-meter-fill {
+            width:0%; height:100%;
+            background: linear-gradient(90deg, #ff8fa3, #ff4d6d);
+            border-radius:10px;
+            transition: width 0.3s ease;
+        }
+        #heart-tap-count {
+            font-size:0.8rem; color:var(--accent); font-weight:600;
+            margin-top:4px;
+        }
+        .pulse-heart {
+            font-size:56px; cursor:pointer; user-select:none;
+            display:block;
+            transition: transform 0.15s;
+        }
+        .pulse-heart:active { transform:scale(0.8); }
+
+        /* ── Sec 2: Emoji shower ── */
+        #emoji-zone { position:relative; height:100px; overflow:hidden; width:100%; }
+        .silly-emoji {
+            position:absolute; font-size:2rem;
+            cursor:pointer; user-select:none;
+            transition: transform 0.1s;
+        }
+        .silly-emoji:active { transform:scale(0.7) !important; }
+        #silly-score {
+            font-size:0.85rem; font-weight:700;
+            color:var(--accent);
+            background:rgba(255,143,163,0.1);
+            padding:3px 12px; border-radius:20px;
+            margin-top:6px;
         }
 
-        /* Clouds */
+        /* ── Sec 3: Hold button ── */
+        #hold-btn {
+            background: linear-gradient(90deg, #ff4d6d 0%, #ff4d6d 0%, white 0%);
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            color: var(--accent);
+            user-select:none;
+            -webkit-user-select:none;
+            -webkit-touch-callout:none;
+        }
+        #hold-progress-container {
+            width:80%; height:8px;
+            background:#ffe3e8;
+            border-radius:10px; margin-top:16px;
+            overflow:hidden; display:none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+        }
+        #hold-progress-bar { width:0%; height:100%; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        #hold-hearts { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+
+        /* ── Sec 4: Clouds ── */
         .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.95;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            position:absolute;
+            cursor:pointer;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+            transition: filter 0.15s;
+        }
+        .cloud:active { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)) brightness(0.95); }
+
+        /* ── Sec 5: Adore typing effect ── */
+        #adore-words { height:60px; position:relative; overflow:hidden; }
+        .adore-word {
+            position:absolute; width:100%;
+            font-family:'DM Serif Display', serif;
+            font-size:1.6rem; color:var(--accent);
+            top:50%; transform:translateY(-50%);
+            opacity:0;
         }
 
-        /* The Runaway No Button */
+        /* ── Sec 6: Scratch to reveal ── */
+        #scratch-wrapper {
+            width:200px; height:70px;
+            border-radius:14px;
+            overflow:hidden; position:relative;
+            cursor:pointer;
+            border:2px solid var(--primary);
+        }
+        #scratch-canvas { position:absolute; top:0; left:0; touch-action:none; }
+        #scratch-reveal {
+            width:100%; height:100%;
+            display:flex; align-items:center; justify-content:center;
+            background: linear-gradient(135deg, #fff0f3, #ffe3e8);
+            font-family:'DM Serif Display', serif;
+            font-size:1.3rem; color:var(--accent);
+            font-style:italic;
+        }
+        #scratch-hint {
+            font-size:0.75rem; color:#aaa;
+            margin-top:6px;
+        }
+
+        /* ── Sec 7: Proposal ── */
         #no-btn {
-            position: absolute; 
-            background: #f0f0f0;
-            border-color: #d1d1d1;
-            color: #888;
-            z-index: 50;
-            transition: background 0.2s;
+            position:absolute;
+            background:#f5f5f5;
+            border-color:#ddd;
+            color:#999;
+            z-index:50;
+            font-size:0.85rem;
+            padding: 10px 22px;
         }
-        #no-btn:hover {
-            background: #e0e0e0;
-            color: #666;
+        #no-btn:hover { background:#ececec; color:#666; transform:none !important; }
+        #shrink-indicator {
+            font-size:0.7rem; color:#bbb;
+            margin-top:4px;
+        }
+        #yes-btn { margin-bottom:16px; }
+
+        /* ── Sec 8: Celebration ── */
+        #celebration-text {
+            font-family:'DM Serif Display', serif;
+            font-style:italic;
+            font-size:1.1rem;
+            color:var(--accent);
+            margin-top:-8px; margin-bottom:20px;
         }
 
-        /* Special Proposal Zone */
-        #proposal-zone {
-            height: 200px;
-            position: relative;
+        /* ── Sec 9: Final ── */
+        #final-score-display {
+            background: linear-gradient(135deg, #fff0f3, #ffe3e8);
+            border-radius:14px; padding:14px 20px;
+            margin-bottom:20px;
+            border:1.5px solid rgba(255,143,163,0.3);
+        }
+        #final-score-display p { margin-bottom:0; min-height:auto; font-size:0.9rem; }
+        #final-total-score {
+            font-family:'DM Serif Display', serif;
+            font-size:2.2rem; color:var(--accent);
+            font-style:italic;
         }
 
-        /* Transition Curtain */
+        /* ── Curtain ── */
         #curtain {
-            position: fixed;
-            top: 50%; left: 50%;
-            width: 20px; height: 20px;
-            background: var(--accent);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            z-index: 100;
-            pointer-events: none;
+            position:fixed; top:50%; left:50%;
+            width:20px; height:20px;
+            background:var(--accent);
+            border-radius:50%;
+            transform:translate(-50%,-50%) scale(0);
+            z-index:100; pointer-events:none;
         }
 
+        /* ── Notification Toast ── */
+        #toast {
+            position:fixed;
+            bottom:32px; left:50%; transform:translateX(-50%) translateY(100px);
+            background: rgba(30,10,10,0.85);
+            color:white;
+            padding:10px 22px;
+            border-radius:30px;
+            font-size:0.85rem; font-weight:500;
+            z-index:300;
+            backdrop-filter:blur(10px);
+            white-space:nowrap;
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #toast.show { transform:translateX(-50%) translateY(0); }
+
+        /* ── Lock / Unlock animation ── */
+        @keyframes unlock-bounce {
+            0%{transform:scale(1)} 30%{transform:scale(1.3) rotate(-10deg)}
+            60%{transform:scale(1.1) rotate(5deg)} 100%{transform:scale(1) rotate(0)}
+        }
+        .unlock { animation: unlock-bounce 0.5s ease; }
+
+        /* ── Proposal ring glow ── */
+        @keyframes ring-pulse {
+            0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,0.4)}
+            50%{box-shadow:0 0 0 12px rgba(255,77,109,0)}
+        }
+        #yes-btn.glow-ring { animation: ring-pulse 1.5s infinite; }
+
+        /* ── Sparkle trail cursor (mobile touch) ── */
+        .sparkle-trail {
+            position:fixed; pointer-events:none;
+            font-size:1rem; z-index:400;
+            animation: sparkle-fade 0.6s ease forwards;
+        }
+        @keyframes sparkle-fade {
+            0%{opacity:1; transform:scale(1) translateY(0)}
+            100%{opacity:0; transform:scale(0.3) translateY(-20px)}
+        }
     </style>
 </head>
 <body>
 
-    <div id="bg-container"></div>
-    <div id="final-rain-container"></div>
-    <div id="curtain"></div>
+<div id="bg-container"></div>
+<div id="star-container"></div>
+<div id="final-rain-container"></div>
+<div id="curtain"></div>
 
-    <div class="card active" id="sec-0">
-        <h1>My Dearest Roo</h1>
-        <p>I've been thinking a lot lately, and there are some things I just need to say. Are you listening?</p>
-        <button onclick="nextStep(1)">I'm listening 🤍</button>
+<!-- Progress UI -->
+<div id="progress-trail"><div id="progress-fill"></div></div>
+<div id="step-counter">1 / 10</div>
+<div id="score-badge">💗 <span id="score-num">0</span> pts</div>
+<div id="toast">✨</div>
+
+<!-- ══════════ SECTION 0 ══════════ -->
+<div class="card active" id="sec-0">
+    <div class="card-badge">A Message for You</div>
+    <h1>My Dearest Fatima</h1>
+    <p><span id="typewriter-text"></span><span id="typewriter-cursor"></span></p>
+    <button class="ripple-btn" onclick="nextStep(1)" id="btn-0" style="opacity:0;pointer-events:none">I'm listening 🤍</button>
+</div>
+
+<!-- ══════════ SECTION 1 ══════════ -->
+<div class="card" id="sec-1">
+    <div class="card-badge">Chapter 1</div>
+    <h1>You Hear Me</h1>
+    <p>Thank you for always listening to me. Even when I ramble, you understand me in a way nobody else does.</p>
+    <div class="interaction-zone" style="flex-direction:column;gap:6px">
+        <span class="pulse-heart" id="hear-heart" onclick="tapHeart()">👂</span>
+        <div id="heart-meter"><div id="heart-meter-fill"></div></div>
+        <div id="heart-tap-count">Tap 7 times 🤍</div>
     </div>
+    <button id="btn-1" style="opacity:0;pointer-events:none" class="ripple-btn" onclick="nextStep(2)">You just get me ✨</button>
+</div>
 
-    <div class="card" id="sec-1">
-        <h1>You Hear Me</h1>
-        <p>Thank you for always listening to me. Even when I ramble, you understand me in a way nobody else does.</p>
-        <div class="interaction-zone">
-            <div class="pulse-heart" id="hear-heart" onclick="animateHeart()">👂</div>
+<!-- ══════════ SECTION 2 ══════════ -->
+<div class="card" id="sec-2">
+    <div class="card-badge">Chapter 2</div>
+    <h1>Your Silliness</h1>
+    <p>I absolutely love how we can be weird together. Your laugh is my favorite sound in the entire world.</p>
+    <div class="interaction-zone" style="height:130px;flex-direction:column;gap:4px">
+        <div id="emoji-zone"></div>
+        <div id="silly-score">Pop 10 emojis! 🎯</div>
+    </div>
+    <button id="btn-2" style="opacity:0;pointer-events:none" class="ripple-btn" onclick="nextStep(3)">It's the best 🎉</button>
+</div>
+
+<!-- ══════════ SECTION 3 ══════════ -->
+<div class="card" id="sec-3">
+    <div class="card-badge">Chapter 3</div>
+    <h1>Just... You</h1>
+    <p>Sometimes I catch myself just staring at you. You are effortlessly beautiful, inside and out.</p>
+    <div class="interaction-zone" style="flex-direction:column; gap:0">
+        <button id="hold-btn">Hold to Admire 🌸</button>
+        <div id="hold-progress-container"><div id="hold-progress-bar"></div></div>
+        <div id="hold-hearts"></div>
+    </div>
+</div>
+
+<!-- ══════════ SECTION 4 ══════════ -->
+<div class="card" id="sec-4">
+    <div class="card-badge">Chapter 4</div>
+    <h1>My Safe Place</h1>
+    <p>Being around you feels like coming home. You are my peace. <em style="font-size:0.85rem;color:#aaa">(tap the clouds away!)</em></p>
+    <div class="interaction-zone" id="cloud-zone" style="height:140px;overflow:hidden;border-radius:16px;position:relative;background:linear-gradient(180deg,#c9f0ff 0%,#e0f7fa 100%)">
+        <div id="cloud-sky-text" style="position:absolute;width:100%;text-align:center;top:42%;font-weight:600;color:#0097a7;font-size:0.9rem;pointer-events:none;z-index:1">I see you clearly now 🤍</div>
+    </div>
+    <button id="btn-4" style="opacity:0;pointer-events:none;margin-top:12px" class="ripple-btn" onclick="nextStep(5)">You are my calm ☁️</button>
+</div>
+
+<!-- ══════════ SECTION 5 ══════════ -->
+<div class="card" id="sec-5">
+    <div class="card-badge">Chapter 5</div>
+    <h1>I Adore You</h1>
+    <p>I don't just love you, Fatima. I adore the way you think, the way you care, and the way you are.</p>
+    <div class="interaction-zone" style="flex-direction:column;gap:6px">
+        <div id="adore-words">
+            <div class="adore-word" id="aw0">Beautiful</div>
+            <div class="adore-word" id="aw1">Brilliant</div>
+            <div class="adore-word" id="aw2">Kind</div>
+            <div class="adore-word" id="aw3">Mine</div>
+            <div class="adore-word" id="aw4">Everything</div>
         </div>
-        <button id="btn-1" style="opacity:0; pointer-events:none;" onclick="nextStep(2)">You just get me</button>
+        <div style="font-size:0.8rem;color:#ccc;margin-top:4px">Words that describe you...</div>
     </div>
+    <button class="ripple-btn" onclick="nextStep(6)">Forever 🌹</button>
+</div>
 
-    <div class="card" id="sec-2">
-        <h1>Your Silliness</h1>
-        <p>I absolutely love how we can be weird together. Your laugh is my favorite sound in the entire world.</p>
-        <div class="interaction-zone" id="emoji-zone">
-            <span style="font-size:40px; margin:5px">🤪</span>
-            <span style="font-size:40px; margin:5px">😂</span>
-            <span style="font-size:40px; margin:5px">🙈</span>
+<!-- ══════════ SECTION 6 ══════════ -->
+<div class="card" id="sec-6">
+    <div class="card-badge">Chapter 6</div>
+    <h1>A Question...</h1>
+    <p>I don't want a future that doesn't have you in it. I want to build everything with you, side by side.</p>
+    <div class="interaction-zone" style="flex-direction:column;gap:8px">
+        <div id="scratch-wrapper" onclick="handleScratchClick()">
+            <div id="scratch-reveal">Ask me... 💍</div>
+            <canvas id="scratch-canvas"></canvas>
         </div>
-        <button onclick="nextStep(3)">It's the best</button>
+        <div id="scratch-hint">Scratch to reveal ✨</div>
     </div>
+    <button id="btn-6" style="opacity:0;pointer-events:none" class="ripple-btn" onclick="nextStep(7)">I'm ready 💍</button>
+</div>
 
-    <div class="card" id="sec-3">
-        <h1>Just... You</h1>
-        <p>Sometimes I catch myself just staring at you. You are effortlessly beautiful, inside and out.</p>
-        <div class="interaction-zone" style="flex-direction: column;">
-            <button id="hold-btn">Hold to Admire 🌸</button>
-            <div id="hold-progress-container">
-                <div id="hold-progress-bar"></div>
-            </div>
-        </div>
+<!-- ══════════ SECTION 7 ══════════ -->
+<div class="card" id="sec-7">
+    <div class="card-badge">The Big Question</div>
+    <h1>Future Wife?</h1>
+    <p>Will you stick by my side and be my future wife? <br><em style="font-size:0.85rem;color:#aaa">(Say yes to forever with Huzaifa)</em></p>
+    <div class="interaction-zone" id="proposal-zone" style="height:180px;position:relative">
+        <button id="yes-btn" class="ripple-btn glow-ring" onclick="celebrate()" style="margin-bottom:16px">Yes, obviously! 💍</button>
+        <button id="no-btn">No</button>
+        <div id="shrink-indicator"></div>
     </div>
+</div>
 
-    <div class="card" id="sec-4">
-        <h1>My Safe Place</h1>
-        <p>Being around you feels like coming home. The world is noisy, but you are my peace. (tap the clouds to clear them away!)</p>
-        <div class="interaction-zone" id="cloud-zone" style="height: 150px; overflow: hidden; border-radius: 15px; position: relative; background: #e0f7fa;">
-            <div style="position:absolute; width:100%; text-align:center; top:45%; font-weight:bold; color:#00bcd4;">Clear the doubts...</div>
-        </div>
-        <button id="btn-4" style="opacity:0; pointer-events:none; margin-top:10px;" onclick="nextStep(5)">You are my calm</button>
+<!-- ══════════ SECTION 8 ══════════ -->
+<div class="card" id="sec-8">
+    <div class="card-badge">She Said Yes! 🎉</div>
+    <h1>I Knew It! 🤍</h1>
+    <div id="celebration-text">"The best decision of my life."</div>
+    <p>You have made me the happiest man alive. I promise to always cherish you, Fatima.</p>
+    <button class="ripple-btn" onclick="nextStep(9)">One last thing 🌸</button>
+</div>
+
+<!-- ══════════ SECTION 9 ══════════ -->
+<div class="card" id="sec-9">
+    <div class="card-badge">Always & Forever</div>
+    <div id="final-score-display">
+        <p>You collected</p>
+        <div id="final-total-score">0 love points</div>
+        <p style="font-size:0.78rem;color:#aaa;margin-top:2px">in this little journey 🤍</p>
     </div>
+    <h1 id="final-h1">For Always.</h1>
+    <p id="final-p">No matter what life throws at us, it's you and me. I love you more than words can say.<br>I'm waiting for the day you'll say "I love you" to me 🤍<br><span style="font-size:0.8rem;color:#aaa">(I do personally think it's the best moment to say it)</span></p>
+    <h2 id="final-sig" style="font-family:'DM Serif Display',serif;font-style:italic;margin-top:18px;font-size:1.4rem;color:var(--accent)">— Yours, Huzaifa 🤍</h2>
+</div>
 
-    <div class="card" id="sec-5">
-        <h1>I Adore You</h1>
-        <p>I don't just love you, Roo. I adore the way you think, the way you care, and the way you are.</p>
-        <button onclick="nextStep(6)">Forever</button>
-    </div>
+<script>
+// ═══════════════════════════════════════════
+//  CORE STATE
+// ═══════════════════════════════════════════
+const TOTAL_STEPS = 10;
+const bgColors = [
+    '#fff0f3','#ffe5ec','#fff9e6','#ffe3e3','#e0f7fa',
+    '#f3e5f5','#ffebee','#fff3e0','#fff0f3','#ffffff'
+];
+let currentStep = 0;
+let score = 0;
 
-    <div class="card" id="sec-6">
-        <h1>A Question...</h1>
-        <p>I don't want a future that doesn't have you in it. I want to build everything with you, side by side.</p>
-        <button onclick="nextStep(7)">Ask me...</button>
-    </div>
+function addScore(n, x, y) {
+    score += n;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('score-badge').classList.add('show');
+    gsap.from('#score-num', { scale:1.5, color:'#ff4d6d', duration:0.3, ease:'back.out' });
+    if (x !== undefined) spawnPointPop(n, x, y);
+}
 
-    <div class="card" id="sec-7">
-        <h1>Future Wife?</h1>
-        <p>Will you stick by my side and be my future wife? (Say yes to forever with Agha)</p>
-        <div class="interaction-zone" id="proposal-zone">
-            <button id="yes-btn" onclick="celebrate()" style="margin-bottom: 20px;">Yes, obviously! 💍</button>
-            <button id="no-btn">No</button>
-        </div>
-    </div>
+function spawnPointPop(n, x, y) {
+    const el = document.createElement('div');
+    el.className = 'point-pop';
+    el.textContent = '+' + n;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.body.appendChild(el);
+    gsap.to(el, { y:-60, opacity:0, duration:0.8, ease:'power2.out', onComplete:()=>el.remove() });
+}
 
-    <div class="card" id="sec-8">
-        <h1>I Knew It! 🤍</h1>
-        <p>You have made me the happiest man alive. I promise to always cherish you, Roo.</p>
-        <button onclick="nextStep(9)">One last thing</button>
-    </div>
+// ═══════════════════════════════════════════
+//  SPARKLE TRAIL
+// ═══════════════════════════════════════════
+document.addEventListener('touchmove', e=>{
+    const t = e.touches[0];
+    if(Math.random()>0.4) return;
+    const el = document.createElement('div');
+    el.className = 'sparkle-trail';
+    el.textContent = ['✨','🌸','🤍','💫'][Math.floor(Math.random()*4)];
+    el.style.left = (t.clientX-10)+'px';
+    el.style.top = (t.clientY-10)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 700);
+}, {passive:true});
 
-    <div class="card" id="sec-9">
-        <h1 id="final-h1">For Always.</h1>
-        <p id="final-p">No matter what life throws at us, it's you and me. I love you more than words can say. <br> I'm waiting for the day you'll say "I love you" to me 🤍<br><span style="font-size: 0.8rem">(I do personally think It's the best moment to say it)</span></p>
-        <h2 id="final-sig" style="font-family: 'Playfair Display'; font-style: italic; margin-top: 20px; font-size: 1.5rem; color: var(--accent);">— Yours, Agha 🤍</h2>
-    </div>
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+}
 
-    <script>
-        const bgColors = [
-            '#fff0f3', '#ffe5ec', '#fff9c4', '#ffe3e3', '#e0f7fa', 
-            '#f3e5f5', '#ffebee', '#ffcdd2', '#fff0f3', '#ffffff'
-        ];
-        let currentStep = 0;
+// ═══════════════════════════════════════════
+//  RIPPLE EFFECT on buttons
+// ═══════════════════════════════════════════
+document.addEventListener('click', e=>{
+    const btn = e.target.closest('.ripple-btn');
+    if(!btn) return;
+    const r = document.createElement('span');
+    r.className = 'ripple-effect';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size+'px';
+    r.style.left = (e.clientX-rect.left-size/2)+'px';
+    r.style.top = (e.clientY-rect.top-size/2)+'px';
+    btn.appendChild(r);
+    setTimeout(()=>r.remove(), 600);
+});
 
-        function initBackground() {
-            const container = document.getElementById('bg-container');
-            const icons = ['❤', '🌸', '✨', '🤍', '☁️', '🌹'];
-            for(let i=0; i<20; i++) {
-                const el = document.createElement('div');
-                el.classList.add('floater');
-                el.innerText = icons[Math.floor(Math.random() * icons.length)];
-                el.style.left = Math.random() * 100 + '%';
-                el.style.top = Math.random() * 100 + '%';
-                container.appendChild(el);
+// ═══════════════════════════════════════════
+//  BACKGROUND STARS
+// ═══════════════════════════════════════════
+function initStars() {
+    const c = document.getElementById('star-container');
+    for(let i=0;i<40;i++){
+        const s=document.createElement('div');
+        s.className='star';
+        const sz=Math.random()*2+1;
+        s.style.width=sz+'px'; s.style.height=sz+'px';
+        s.style.left=Math.random()*100+'%';
+        s.style.top=Math.random()*100+'%';
+        s.style.opacity=Math.random()*0.6+0.1;
+        c.appendChild(s);
+        gsap.to(s,{opacity:Math.random()*0.4+0.05,duration:Math.random()*3+1.5,repeat:-1,yoyo:true,ease:'sine.inOut',delay:Math.random()*3});
+    }
+}
+initStars();
 
-                gsap.to(el, {
-                    y: Math.random() * 200 - 100, x: Math.random() * 200 - 100,
-                    rotation: Math.random() * 360, duration: 2 + Math.random() * 6, 
-                    repeat: -1, yoyo: true, ease: "sine.inOut"
-                });
-            }
+// ═══════════════════════════════════════════
+//  FLOATING BACKGROUND
+// ═══════════════════════════════════════════
+function initBackground() {
+    const container = document.getElementById('bg-container');
+    const icons = ['❤','🌸','✨','🤍','☁️','🌹','💕','🌺'];
+    for(let i=0;i<18;i++){
+        const el=document.createElement('div');
+        el.classList.add('floater');
+        el.innerText=icons[Math.floor(Math.random()*icons.length)];
+        el.style.left=Math.random()*100+'%';
+        el.style.top=Math.random()*100+'%';
+        el.style.fontSize=(1.2+Math.random()*1.2)+'rem';
+        container.appendChild(el);
+        gsap.to(el,{y:Math.random()*180-90,x:Math.random()*180-90,rotation:Math.random()*360,duration:3+Math.random()*7,repeat:-1,yoyo:true,ease:'sine.inOut',delay:Math.random()*4});
+    }
+}
+initBackground();
+
+// ═══════════════════════════════════════════
+//  TYPEWRITER — Section 0
+// ═══════════════════════════════════════════
+function initTypewriter() {
+    const text = "I've been thinking a lot lately, and there are some things I just need to say. Are you listening?";
+    const el = document.getElementById('typewriter-text');
+    const btn = document.getElementById('btn-0');
+    let i=0;
+    const iv = setInterval(()=>{
+        el.textContent = text.slice(0,++i);
+        if(i>=text.length){
+            clearInterval(iv);
+            document.getElementById('typewriter-cursor').style.display='none';
+            gsap.to(btn,{opacity:1,pointerEvents:'all',y:-5,duration:0.5,delay:0.3,ease:'back.out(2)'});
         }
-        initBackground();
+    }, 35);
+}
+initTypewriter();
 
-        function nextStep(target) {
-            const currentCard = document.getElementById(`sec-${currentStep}`);
-            const nextCard = document.getElementById(`sec-${target}`);
-            const curtain = document.getElementById('curtain');
-            
-            const tl = gsap.timeline();
-            tl.to(currentCard, { scale: 0.9, opacity: 0, duration: 0.4, ease: "back.in(1.7)" })
-            .to(curtain, {
-                scale: 150, duration: 0.8, ease: "circ.inOut",
-                onStart: () => { document.body.style.backgroundColor = bgColors[target]; }
-            })
-            .call(() => {
-                currentCard.classList.remove('active');
-                nextCard.classList.add('active');
-                gsap.set(nextCard, { scale: 0.8, opacity: 0, y: 50 });
-                
-                if(target === 2) initSilly();
-                if(target === 4) initClouds();
-                if(target === 7) initRunawayBtn(); 
-                if(target === 9) initFinalSpectacle(); 
-            })
-            .to(curtain, { scale: 0, duration: 0.6, ease: "power2.out" })
-            .to(nextCard, { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" });
+// ═══════════════════════════════════════════
+//  PROGRESS UPDATE
+// ═══════════════════════════════════════════
+function updateProgress(step) {
+    const pct = (step/(TOTAL_STEPS-1))*100;
+    document.getElementById('progress-fill').style.width = pct+'%';
+    document.getElementById('step-counter').textContent = (step+1)+' / '+TOTAL_STEPS;
+}
 
-            currentStep = target;
-        }
+// ═══════════════════════════════════════════
+//  NEXT STEP
+// ═══════════════════════════════════════════
+function nextStep(target) {
+    const cur = document.getElementById('sec-'+currentStep);
+    const nxt = document.getElementById('sec-'+target);
+    const curtain = document.getElementById('curtain');
+    addScore(5, window.innerWidth/2, window.innerHeight/2);
+    updateProgress(target);
 
-        function animateHeart() {
-            const h = document.getElementById('hear-heart');
-            gsap.to(h, { scale: 1.5, rotate: 360, duration: 0.5, ease: "back.out(1.7)" });
-            h.innerText = '💖';
-            gsap.to('#btn-1', { opacity: 1, pointerEvents: 'all', y: -10, duration: 0.5, delay: 0.2 });
-        }
+    const tl = gsap.timeline();
+    tl.to(cur,{scale:0.88,opacity:0,duration:0.35,ease:'back.in(1.7)'})
+    .to(curtain,{scale:160,duration:0.7,ease:'circ.inOut',
+        onStart:()=>{ document.body.style.backgroundColor=bgColors[target]; }
+    })
+    .call(()=>{
+        cur.classList.remove('active');
+        nxt.classList.add('active','shimmer');
+        gsap.set(nxt,{scale:0.8,opacity:0,y:40});
+        if(target===1) initHeartTap();
+        if(target===2) initSilly();
+        if(target===4) initClouds();
+        if(target===5) initAdoreWords();
+        if(target===6) initScratch();
+        if(target===7) initRunawayBtn();
+        if(target===9) initFinalSpectacle();
+        setTimeout(()=>nxt.classList.remove('shimmer'),1000);
+    })
+    .to(curtain,{scale:0,duration:0.5,ease:'power2.out'})
+    .to(nxt,{scale:1,opacity:1,y:0,duration:0.55,ease:'back.out(1.4)'});
 
-        function initSilly() {
-            gsap.utils.toArray("#emoji-zone span").forEach(emoji => {
-                gsap.to(emoji, {
-                    y: -20, rotation: 20, duration: 0.5, yoyo: true, repeat: -1,
-                    ease: "power1.inOut", delay: Math.random() * 0.5
-                });
-            });
-        }
+    currentStep = target;
+}
 
-        // --- NEW FOOL-PROOF HOLD BUTTON LOGIC ---
-        let holdTimer = null;
-        let isHolding = false;
-        let holdProgress = 0;
-        
-        const holdBtn = document.getElementById('hold-btn');
-        const holdContainer = document.getElementById('hold-progress-container');
-        const holdBar = document.getElementById('hold-progress-bar');
+// ═══════════════════════════════════════════
+//  SEC 1: HEART TAP
+// ═══════════════════════════════════════════
+let heartTaps=0; const HEART_TARGET=7;
+function initHeartTap(){ heartTaps=0; document.getElementById('heart-meter-fill').style.width='0%'; }
 
-        function startHold(e) {
-            // Prevent simulated mouse events on touch devices
-            if (e.type === 'touchstart') e.preventDefault();
-            
-            if (isHolding) return;
-            isHolding = true;
-            
-            holdContainer.style.display = 'block';
-            gsap.to(holdBtn, { scale: 0.95, duration: 0.1 });
-            
+function tapHeart() {
+    if(heartTaps>=HEART_TARGET) return;
+    heartTaps++;
+    const h=document.getElementById('hear-heart');
+    const pct = (heartTaps/HEART_TARGET)*100;
+    document.getElementById('heart-meter-fill').style.width=pct+'%';
+
+    const emojis=['💖','💗','💓','💝','❤','🧡','💕'];
+    h.innerText=emojis[heartTaps-1]||'💖';
+    gsap.from(h,{scale:0.5,rotation:-15,duration:0.35,ease:'back.out(3)'});
+
+    const rect=h.getBoundingClientRect();
+    addScore(3, rect.left+rect.width/2, rect.top);
+
+    document.getElementById('heart-tap-count').textContent=
+        heartTaps<HEART_TARGET ? `${heartTaps}/${HEART_TARGET} — keep going! 💗` : 'Full of love 💖';
+
+    if(heartTaps>=HEART_TARGET){
+        showToast('Heart filled! 💖 +15 bonus!');
+        addScore(15, rect.left+rect.width/2, rect.top);
+        gsap.to('#btn-1',{opacity:1,pointerEvents:'all',y:-6,duration:0.5,delay:0.3,ease:'back.out(2)'});
+        gsap.to(h,{rotation:360,duration:1,ease:'back.out(1.5)'});
+    }
+}
+
+// ═══════════════════════════════════════════
+//  SEC 2: SILLY EMOJI POPPING
+// ═══════════════════════════════════════════
+let sillyCount=0; const SILLY_TARGET=10;
+function initSilly(){
+    sillyCount=0;
+    const zone=document.getElementById('emoji-zone');
+    zone.innerHTML='';
+    document.getElementById('silly-score').textContent=`Pop ${SILLY_TARGET} emojis! 🎯`;
+    document.getElementById('btn-2').style.opacity='0';
+    document.getElementById('btn-2').style.pointerEvents='none';
+    spawnSillyBatch(6);
+}
+
+function spawnSillyBatch(n){
+    const zone=document.getElementById('emoji-zone');
+    const pool=['🤪','😂','🙈','😜','🤣','🥳','😝','🤩','😆','🎉','🤸','💃','🕺','🌈','🦋'];
+    for(let i=0;i<n;i++){
+        setTimeout(()=>{
+            if(sillyCount>=SILLY_TARGET) return;
+            const e=document.createElement('div');
+            e.className='silly-emoji';
+            e.textContent=pool[Math.floor(Math.random()*pool.length)];
+            const zW=zone.offsetWidth||300, zH=zone.offsetHeight||100;
+            e.style.left=Math.random()*(zW-40)+'px';
+            e.style.top=Math.random()*(zH-40)+'px';
+            e.style.fontSize=(1.5+Math.random())+'rem';
+            zone.appendChild(e);
+            gsap.from(e,{scale:0,rotation:Math.random()*360,duration:0.4,ease:'back.out(2)'});
+            gsap.to(e,{y:-8+Math.random()*16,x:-5+Math.random()*10,duration:1+Math.random(),yoyo:true,repeat:-1,ease:'sine.inOut'});
+            e.addEventListener('click',()=>popEmoji(e));
+            e.addEventListener('touchend',ev=>{ev.preventDefault();popEmoji(e);});
+        }, i*120);
+    }
+}
+
+function popEmoji(el){
+    if(!el.parentNode) return;
+    sillyCount++;
+    const rect=el.getBoundingClientRect();
+    addScore(4, rect.left+rect.width/2, rect.top);
+    gsap.to(el,{scale:2,opacity:0,duration:0.3,ease:'back.out',onComplete:()=>{
+        el.remove();
+        const remaining=document.querySelectorAll('.silly-emoji').length;
+        if(remaining<3 && sillyCount<SILLY_TARGET) spawnSillyBatch(4);
+    }});
+    document.getElementById('silly-score').textContent=
+        sillyCount<SILLY_TARGET ? `${sillyCount}/${SILLY_TARGET} popped! 🎯` : '10/10 ✨ You\'re hilarious!';
+    if(sillyCount>=SILLY_TARGET){
+        showToast('All popped! 🎉 +20 bonus!');
+        addScore(20, window.innerWidth/2, window.innerHeight/3);
+        gsap.to('#btn-2',{opacity:1,pointerEvents:'all',y:-5,duration:0.5,delay:0.4,ease:'back.out(2)'});
+    }
+}
+
+// ═══════════════════════════════════════════
+//  SEC 3: HOLD BUTTON
+// ═══════════════════════════════════════════
+let holdTimer=null, isHolding=false, holdProgress=0;
+const holdBtn=document.getElementById('hold-btn');
+const holdContainer=document.getElementById('hold-progress-container');
+const holdBar=document.getElementById('hold-progress-bar');
+const holdHearts=document.getElementById('hold-hearts');
+
+function spawnHoldHeart(){
+    const h=document.createElement('div');
+    h.style.cssText=`position:absolute;font-size:${0.8+Math.random()*0.8}rem;pointer-events:none;left:${Math.random()*80+10}%;top:100%`;
+    h.textContent=['💗','🌸','✨','💖'][Math.floor(Math.random()*4)];
+    holdHearts.appendChild(h);
+    gsap.to(h,{y:-(60+Math.random()*60),opacity:0,duration:1.2,ease:'power2.out',onComplete:()=>h.remove()});
+}
+
+function startHold(e){
+    if(e.type==='touchstart') e.preventDefault();
+    if(isHolding) return;
+    isHolding=true;
+    holdContainer.style.display='block';
+    gsap.to(holdBtn,{scale:0.94,duration:0.1});
+    clearInterval(holdTimer);
+    holdTimer=setInterval(()=>{
+        holdProgress+=1.4;
+        holdBar.style.width=holdProgress+'%';
+        holdBtn.style.backgroundPosition=`${100-holdProgress}% 0`;
+        if(holdProgress%14<1.5) spawnHoldHeart();
+        if(holdProgress>=100){
             clearInterval(holdTimer);
-            
-            holdTimer = setInterval(() => {
-                holdProgress += 2;
-                // Update bar and background gradient
-                holdBar.style.width = holdProgress + '%';
-                holdBtn.style.backgroundPosition = `${100 - holdProgress}% 0`;
-                
-                if(holdProgress >= 100) {
-                    clearInterval(holdTimer);
-                    isHolding = false;
-                    holdBtn.innerText = "Beautiful ✨";
-                    gsap.to(holdBtn, { scale: 1.1, duration: 0.3, ease: "elastic.out" });
-                    
-                    // Remove listeners so it can't be triggered again
-                    holdBtn.removeEventListener('mousedown', startHold);
-                    holdBtn.removeEventListener('touchstart', startHold);
-                    
-                    setTimeout(() => nextStep(4), 800);
-                }
-            }, 20);
+            isHolding=false;
+            holdBtn.textContent='Beautiful ✨';
+            holdBtn.classList.add('unlock');
+            addScore(25, holdBtn.getBoundingClientRect().left+50, holdBtn.getBoundingClientRect().top);
+            showToast('So beautiful! 🌸 +25 points!');
+            holdBtn.removeEventListener('mousedown',startHold);
+            holdBtn.removeEventListener('touchstart',startHold);
+            setTimeout(()=>nextStep(4),900);
         }
+    },16);
+}
+function endHold(e){
+    if(!isHolding) return;
+    isHolding=false; clearInterval(holdTimer);
+    gsap.to(holdBtn,{scale:1,duration:0.2});
+    holdProgress=0; holdBar.style.width='0%';
+    holdBtn.style.backgroundPosition='100% 0';
+}
+holdBtn.addEventListener('mousedown',startHold);
+holdBtn.addEventListener('touchstart',startHold,{passive:false});
+holdBtn.addEventListener('mouseup',endHold);
+holdBtn.addEventListener('mouseleave',endHold);
+holdBtn.addEventListener('touchend',endHold);
+holdBtn.addEventListener('touchcancel',endHold);
+holdBtn.addEventListener('contextmenu',e=>e.preventDefault());
 
-        function endHold(e) {
-            if (!isHolding) return;
-            isHolding = false;
-            clearInterval(holdTimer);
-            
-            // Reset visuals
-            gsap.to(holdBtn, { scale: 1, duration: 0.2 });
-            holdProgress = 0;
-            holdBar.style.width = '0%';
-            holdBtn.style.backgroundPosition = `100% 0`;
-        }
+// ═══════════════════════════════════════════
+//  SEC 4: CLOUDS
+// ═══════════════════════════════════════════
+let cloudsRemaining=0;
+function makeCloudSVG(w){
+    // Proper puffy cloud shape using SVG ellipses
+    const h=Math.round(w*0.62);
+    const cx=w/2, cy=h*0.62;
+    const r=h*0.38;
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="${cx}" cy="${cy}" rx="${w*0.42}" ry="${r}" fill="white"/>
+        <ellipse cx="${cx-w*0.18}" cy="${cy-r*0.3}" rx="${w*0.22}" ry="${r*0.7}" fill="white"/>
+        <ellipse cx="${cx+w*0.16}" cy="${cy-r*0.22}" rx="${w*0.26}" ry="${r*0.8}" fill="white"/>
+        <ellipse cx="${cx-w*0.06}" cy="${cy-r*0.58}" rx="${w*0.2}" ry="${r*0.65}" fill="white"/>
+    </svg>`;
+}
 
-        // Attach listeners (Mouse & Touch)
-        holdBtn.addEventListener('mousedown', startHold);
-        holdBtn.addEventListener('touchstart', startHold, { passive: false });
-        
-        // Stop triggers (covers lifting finger, dragging finger off, etc.)
-        holdBtn.addEventListener('mouseup', endHold);
-        holdBtn.addEventListener('mouseleave', endHold);
-        holdBtn.addEventListener('touchend', endHold);
-        holdBtn.addEventListener('touchcancel', endHold);
-        
-        // Block context menu (the popup that asks to copy text on mobile)
-        holdBtn.addEventListener('contextmenu', e => e.preventDefault());
-        // ----------------------------------------
+function initClouds(){
+    cloudsRemaining=0;
+    const zone=document.getElementById('cloud-zone');
+    zone.querySelectorAll('.cloud').forEach(c=>c.remove());
 
-        function initClouds() {
-            const zone = document.getElementById('cloud-zone');
-            zone.innerHTML = '<div style="position:absolute; width:100%; text-align:center; top:45%; font-weight:bold; color:#00bcd4;">I see you clearly now 🤍</div>';
-            for(let i=0; i<8; i++) {
-                const cloud = document.createElement('div');
-                cloud.classList.add('cloud');
-                const size = 60 + Math.random() * 60;
-                cloud.style.width = size + 'px';
-                cloud.style.height = size * 0.6 + 'px';
-                cloud.style.left = Math.random() * 80 + '%';
-                cloud.style.top = Math.random() * 80 + '%';
-                cloud.onclick = function() {
-                    gsap.to(this, { scale: 2, opacity: 0, duration: 0.5, onComplete: () => this.remove() });
-                    checkClouds();
-                };
-                zone.appendChild(cloud);
-            }
-        }
+    const positions=[
+        {l:4,  t:8},  {l:52, t:6},  {l:26, t:48},
+        {l:62, t:44}, {l:8,  t:56}, {l:40, t:20},
+        {l:68, t:62}, {l:18, t:30}
+    ];
+    const sizes=[72,58,80,64,70,56,76,60];
 
-        function checkClouds() {
-            setTimeout(() => {
-                if(document.querySelectorAll('.cloud').length === 0) {
-                    gsap.to('#btn-4', { opacity: 1, pointerEvents: 'all', y: 0, duration: 0.5 });
-                }
-            }, 600);
-        }
+    positions.forEach((pos,i)=>{
+        const w=sizes[i];
+        const c=document.createElement('div');
+        c.classList.add('cloud');
+        c.innerHTML=makeCloudSVG(w);
+        c.style.left=pos.l+'%';
+        c.style.top=pos.t+'%';
+        c.style.zIndex=10;
+        c.style.opacity='0';
+        c.style.transform='scale(0)';
+        zone.appendChild(c);
+        cloudsRemaining++;
 
-        function initRunawayBtn() {
-            const noBtn = document.getElementById('no-btn');
-            const yesBtn = document.getElementById('yes-btn');
-            const zone = document.getElementById('proposal-zone');
-            
-            gsap.set(noBtn, { left: '50%', x: '-50%', top: yesBtn.offsetHeight + 20 });
-
-            const moveBtn = (e) => {
-                e.preventDefault(); 
-                
-                const zoneWidth = zone.offsetWidth;
-                const zoneHeight = zone.offsetHeight;
-                const btnWidth = noBtn.offsetWidth;
-                const btnHeight = noBtn.offsetHeight;
-                
-                const yesLeft = yesBtn.offsetLeft;
-                const yesTop = yesBtn.offsetTop;
-                const yesRight = yesLeft + yesBtn.offsetWidth;
-                const yesBottom = yesTop + yesBtn.offsetHeight;
-
-                let newX, newY, safe = false;
-                
-                for(let i=0; i<20; i++) {
-                    newX = Math.random() * (zoneWidth - btnWidth);
-                    newY = Math.random() * (zoneHeight - btnHeight);
-                    
-                    if( !(newX < yesRight + 20 && newX + btnWidth > yesLeft - 20 &&
-                          newY < yesBottom + 20 && newY + btnHeight > yesTop - 20) ) {
-                        safe = true;
-                        break;
-                    }
-                }
-                
-                if(!safe) { newX = 0; newY = 0; }
-
-                gsap.to(noBtn, {
-                    left: newX, top: newY, x: 0, 
-                    rotation: Math.random() * 360 - 180, 
-                    duration: 0.4, ease: "power2.out"
+        // Stagger entry — set visible first, then animate in
+        setTimeout(()=>{
+            c.style.opacity='1';
+            gsap.fromTo(c,
+                {scale:0, opacity:0},
+                {scale:1, opacity:1, duration:0.45, ease:'back.out(2)',
+                 onComplete:()=>{
+                     // Only start float after entry is fully done
+                     gsap.to(c,{x:Math.random()*16-8, y:Math.random()*12-6,
+                         duration:1.8+Math.random()*1.5, yoyo:true, repeat:-1, ease:'sine.inOut'});
+                 }
                 });
-            };
+        }, i*110);
 
-            noBtn.addEventListener('mouseover', moveBtn);
-            noBtn.addEventListener('touchstart', moveBtn);
-            noBtn.addEventListener('click', moveBtn);
+        c.onclick=()=>popCloud(c);
+        c.addEventListener('touchend',e=>{e.preventDefault();popCloud(c);},{passive:false});
+    });
+}
+
+function popCloud(c){
+    if(!c.parentNode || c._popping) return;
+    c._popping=true;
+    cloudsRemaining--;
+    const rect=c.getBoundingClientRect();
+    addScore(5,rect.left+rect.width/2,rect.top);
+    gsap.killTweensOf(c);
+    gsap.to(c,{scale:1.9,opacity:0,duration:0.35,ease:'back.out(1.5)',onComplete:()=>{
+        c.remove();
+        if(cloudsRemaining<=0){
+            showToast('Sky cleared! ☀️ +20 bonus!');
+            addScore(20,window.innerWidth/2,window.innerHeight/3);
+            gsap.to('#btn-4',{opacity:1,pointerEvents:'all',duration:0.5,ease:'back.out(2)'});
         }
+    }});
+}
 
-        function celebrate() {
-            nextStep(8);
-            for(let i=0; i<100; i++) {
-                const p = document.createElement('div');
-                p.innerText = ['💍', '🤍', '🎉', '🌸'][Math.floor(Math.random()*4)];
-                p.style.position = 'fixed';
-                p.style.left = '50%';
-                p.style.top = '50%';
-                p.style.fontSize = Math.random() * 20 + 10 + 'px';
-                p.style.pointerEvents = 'none';
-                document.body.appendChild(p);
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = 100 + Math.random() * 400;
-                gsap.to(p, {
-                    x: Math.cos(angle) * velocity, y: Math.sin(angle) * velocity,
-                    opacity: 0, duration: 1 + Math.random(), ease: "power2.out",
-                    onComplete: () => p.remove()
-                });
-            }
+// ═══════════════════════════════════════════
+//  SEC 5: ADORE WORDS CAROUSEL
+// ═══════════════════════════════════════════
+let adoreIdx=0, adoreTimer=null;
+function initAdoreWords(){
+    const words=document.querySelectorAll('.adore-word');
+    clearInterval(adoreTimer);
+    words.forEach(w=>{ w.style.opacity=0; gsap.set(w,{y:20}); });
+    showAdoreWord(0);
+    adoreTimer=setInterval(()=>{
+        gsap.to(words[adoreIdx],{opacity:0,y:-20,duration:0.3});
+        adoreIdx=(adoreIdx+1)%words.length;
+        showAdoreWord(adoreIdx);
+    },1400);
+}
+function showAdoreWord(i){
+    const w=document.querySelectorAll('.adore-word')[i];
+    gsap.fromTo(w,{opacity:0,y:20},{opacity:1,y:0,duration:0.4,ease:'back.out(2)'});
+}
+
+// ═══════════════════════════════════════════
+//  SEC 6: SCRATCH CARD
+// ═══════════════════════════════════════════
+let scratchDone=false;
+function initScratch(){
+    scratchDone=false;
+    const canvas=document.getElementById('scratch-canvas');
+    const wrapper=document.getElementById('scratch-wrapper');
+    const w=wrapper.offsetWidth||200, h=wrapper.offsetHeight||70;
+    canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#ff8fa3';
+    ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='white';
+    ctx.font='bold 14px DM Sans, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('✦ Scratch Me ✦', w/2, h/2+5);
+
+    let painting=false;
+    const scratch=(x,y)=>{
+        ctx.globalCompositeOperation='destination-out';
+        ctx.beginPath();
+        ctx.arc(x,y,18,0,Math.PI*2);
+        ctx.fill();
+        checkScratchComplete(ctx,w,h);
+    };
+    canvas.addEventListener('mousemove',e=>{if(!painting)return;const r=canvas.getBoundingClientRect();scratch(e.clientX-r.left,e.clientY-r.top);});
+    canvas.addEventListener('mousedown',e=>{painting=true;const r=canvas.getBoundingClientRect();scratch(e.clientX-r.left,e.clientY-r.top);});
+    canvas.addEventListener('mouseup',()=>painting=false);
+    canvas.addEventListener('touchmove',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.touches[0];scratch(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+    canvas.addEventListener('touchstart',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.touches[0];scratch(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+}
+function handleScratchClick(){ /* handled by canvas events */ }
+function checkScratchComplete(ctx,w,h){
+    if(scratchDone) return;
+    const d=ctx.getImageData(0,0,w,h).data;
+    let clear=0;
+    for(let i=3;i<d.length;i+=4) if(d[i]<128) clear++;
+    const pct=clear/(w*h);
+    if(pct>0.55){
+        scratchDone=true;
+        addScore(20,window.innerWidth/2,window.innerHeight/2);
+        showToast('Revealed! 💍 +20 points!');
+        gsap.to('#btn-6',{opacity:1,pointerEvents:'all',duration:0.5,delay:0.3,ease:'back.out(2)'});
+        document.getElementById('scratch-hint').textContent='✨ You found it!';
+    }
+}
+
+// ═══════════════════════════════════════════
+//  SEC 7: RUNAWAY NO BUTTON
+// ═══════════════════════════════════════════
+let noEscapes=0;
+function initRunawayBtn(){
+    const noBtn=document.getElementById('no-btn');
+    const yesBtn=document.getElementById('yes-btn');
+    const zone=document.getElementById('proposal-zone');
+    gsap.set(noBtn,{left:'50%',x:'-50%',top:(yesBtn.offsetHeight||50)+24,fontSize:'1rem'});
+    const moveBtn=(e)=>{
+        e.preventDefault();
+        noEscapes++;
+        const zW=zone.offsetWidth, zH=zone.offsetHeight;
+        const bW=noBtn.offsetWidth||90, bH=noBtn.offsetHeight||44;
+        let nx, ny, safe=false;
+        for(let i=0;i<20;i++){
+            nx=Math.random()*(zW-bW);
+            ny=Math.random()*(zH-bH);
+            const yL=yesBtn.offsetLeft, yT=yesBtn.offsetTop;
+            const yR=yL+yesBtn.offsetWidth, yB=yT+yesBtn.offsetHeight;
+            if(!(nx<yR+20&&nx+bW>yL-20&&ny<yB+20&&ny+bH>yT-20)){safe=true;break;}
         }
+        if(!safe){nx=0;ny=0;}
+        // shrink button a bit each escape
+        const newSize=Math.max(0.6,1-noEscapes*0.08);
+        gsap.to(noBtn,{
+            left:nx, top:ny, x:0,
+            rotation:Math.random()*360-180,
+            fontSize:newSize+'rem',
+            duration:0.35, ease:'power2.out'
+        });
+        document.getElementById('shrink-indicator').textContent =
+            noEscapes>2 ? `(still running away... ${noEscapes}x 😂)` : '';
+    };
+    noBtn.addEventListener('mouseover',moveBtn);
+    noBtn.addEventListener('touchstart',moveBtn,{passive:false});
+    noBtn.addEventListener('click',moveBtn);
+}
 
-        function initFinalSpectacle() {
-            const tl = gsap.timeline();
-            tl.from("#final-h1", { opacity: 0, y: 20, duration: 1, delay: 0.5 })
-              .from("#final-p", { opacity: 0, y: 20, duration: 1 }, "-=0.5")
-              .from("#final-sig", { opacity: 0, scale: 0.8, duration: 1, ease: "elastic.out(1, 0.5)" });
+// ═══════════════════════════════════════════
+//  CELEBRATE
+// ═══════════════════════════════════════════
+function celebrate(){
+    addScore(50, window.innerWidth/2, window.innerHeight/2);
+    showToast('SHE SAID YES!!! 💍🎉');
+    nextStep(8);
+    const items=['💍','🤍','🎉','🌸','✨','🌹','💕'];
+    for(let i=0;i<120;i++){
+        const p=document.createElement('div');
+        p.innerText=items[Math.floor(Math.random()*items.length)];
+        p.style.cssText=`position:fixed;left:50%;top:50%;font-size:${8+Math.random()*18}px;pointer-events:none;z-index:500`;
+        document.body.appendChild(p);
+        const angle=Math.random()*Math.PI*2;
+        const vel=120+Math.random()*460;
+        gsap.to(p,{x:Math.cos(angle)*vel,y:Math.sin(angle)*vel,opacity:0,duration:1+Math.random()*0.8,ease:'power2.out',onComplete:()=>p.remove()});
+        gsap.to(p,{rotation:Math.random()*720-360,duration:1.5,ease:'none'});
+    }
+    if(navigator.vibrate) navigator.vibrate([50,30,80,30,120]);
+}
 
-            gsap.to("#sec-9", { y: -15, duration: 2, yoyo: true, repeat: -1, ease: "sine.inOut" });
+// ═══════════════════════════════════════════
+//  FINAL SPECTACLE
+// ═══════════════════════════════════════════
+function initFinalSpectacle(){
+    if(adoreTimer) clearInterval(adoreTimer);
 
-            const container = document.getElementById('final-rain-container');
-            const items = ['🌸', '🌹', '🌺', '🤍', '❤', '✨'];
-            setInterval(() => {
-                const el = document.createElement('div');
-                el.innerText = items[Math.floor(Math.random() * items.length)];
-                el.style.position = 'absolute';
-                el.style.left = Math.random() * 100 + 'vw';
-                el.style.top = '-50px';
-                el.style.fontSize = Math.random() * 20 + 15 + 'px';
-                el.style.opacity = Math.random() * 0.5 + 0.5;
-                el.style.pointerEvents = 'none';
-                container.appendChild(el);
-                gsap.to(el, {
-                    y: '110vh', rotation: Math.random() * 360, duration: Math.random() * 3 + 2, ease: "none",
-                    onComplete: () => el.remove()
-                });
-                gsap.to(el, { x: '+=random(-50, 50)', duration: Math.random() * 1 + 1, yoyo: true, repeat: -1, ease: "sine.inOut" });
-            }, 50);
-        }
+    document.getElementById('final-total-score').textContent = score + ' love points';
 
-    </script>
+    const tl=gsap.timeline();
+    tl.from('#final-score-display',{opacity:0,y:20,scale:0.9,duration:0.7,delay:0.4,ease:'back.out(2)'})
+    .from('#final-h1',{opacity:0,y:20,duration:0.7},'-=0.3')
+    .from('#final-p',{opacity:0,y:20,duration:0.7},'-=0.4')
+    .from('#final-sig',{opacity:0,scale:0.8,duration:0.8,ease:'elastic.out(1,0.5)'},'-=0.3');
+
+    gsap.to('#sec-9',{y:-12,duration:2.2,yoyo:true,repeat:-1,ease:'sine.inOut'});
+
+    const container=document.getElementById('final-rain-container');
+    const items=['🌸','🌹','🌺','🤍','❤','✨','💕','🌼'];
+    setInterval(()=>{
+        const el=document.createElement('div');
+        el.innerText=items[Math.floor(Math.random()*items.length)];
+        el.style.cssText=`position:absolute;left:${Math.random()*100}vw;top:-50px;font-size:${12+Math.random()*18}px;opacity:${0.5+Math.random()*0.5};pointer-events:none`;
+        container.appendChild(el);
+        gsap.to(el,{y:'110vh',rotation:Math.random()*360,duration:2.5+Math.random()*3,ease:'none',onComplete:()=>el.remove()});
+        gsap.to(el,{x:'+=random(-50,50)',duration:1+Math.random(),yoyo:true,repeat:-1,ease:'sine.inOut'});
+    },55);
+}
+</script>
 </body>
 </html>
